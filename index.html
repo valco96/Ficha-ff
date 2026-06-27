@@ -1,0 +1,2129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ficha de Personaje · Final Fantasy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Spline+Sans+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#070b18;
+    --bg2:#0b1228;
+    --win:rgba(16,28,64,0.78);
+    --win2:rgba(11,20,48,0.9);
+    --edge:#88b0e6;
+    --edge-soft:rgba(136,176,230,0.35);
+    --ink:#eef3fc;
+    --ink-dim:#9fb2d4;
+    --gold:#f0d27a;
+    --gold-deep:#caa23f;
+    --cyan:#5fe0ec;
+    --mag:#b58ae0;
+    --hp:#79e08a;
+    --mp2:#62b8f1;
+    --danger:#e8736b;
+    --radius:7px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    font-family:'Inter',system-ui,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(1100px 600px at 78% -8%, rgba(58,96,180,0.20), transparent 60%),
+      radial-gradient(900px 700px at 8% 12%, rgba(120,80,180,0.14), transparent 55%),
+      linear-gradient(180deg,#070b18 0%,#080d1e 50%,#060912 100%);
+    background-attachment:fixed;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  /* faint starfield */
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
+    background-image:
+      radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,.5), transparent),
+      radial-gradient(1px 1px at 70% 65%, rgba(255,255,255,.35), transparent),
+      radial-gradient(1px 1px at 40% 80%, rgba(180,210,255,.4), transparent),
+      radial-gradient(1px 1px at 88% 22%, rgba(255,255,255,.3), transparent),
+      radial-gradient(1px 1px at 12% 70%, rgba(200,220,255,.3), transparent);
+  }
+  .wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:26px 18px 90px}
+
+  /* ---------- Window panels (FF command-window feel) ---------- */
+  .win{
+    background:linear-gradient(180deg,var(--win),var(--win2));
+    border:1px solid var(--edge-soft);
+    border-radius:var(--radius);
+    box-shadow:0 0 0 1px rgba(8,14,34,.7) inset, 0 10px 30px rgba(0,0,0,.4), 0 0 24px rgba(70,120,210,.06);
+    position:relative;
+  }
+  .win::after{ /* top inner sheen */
+    content:"";position:absolute;left:8px;right:8px;top:6px;height:1px;
+    background:linear-gradient(90deg,transparent,rgba(150,190,240,.45),transparent);
+    pointer-events:none;
+  }
+
+  /* ---------- Header ---------- */
+  header.crest{
+    text-align:center;padding:20px 16px 18px;margin-bottom:18px;overflow:hidden;
+  }
+  header.crest .kanji{font-size:.72rem;letter-spacing:.5em;color:var(--cyan);opacity:.7;margin-bottom:6px}
+  header.crest h1{
+    font-family:'Cinzel',serif;font-weight:700;margin:0;line-height:1;
+    font-size:clamp(1.9rem,6vw,3.4rem);letter-spacing:.06em;
+    color:var(--ink);
+    text-shadow:0 0 18px rgba(95,224,236,.25), 0 2px 0 rgba(0,0,0,.5);
+  }
+  header.crest h1 .ff{color:var(--gold);text-shadow:0 0 22px rgba(240,210,122,.35)}
+  header.crest .sub{margin-top:8px;font-size:.74rem;letter-spacing:.34em;text-transform:uppercase;color:var(--ink-dim)}
+  .crystal-rule{height:1px;width:min(420px,80%);margin:14px auto 0;
+    background:linear-gradient(90deg,transparent,var(--edge),transparent)}
+
+  /* ---------- Tabs ---------- */
+  nav.tabs{display:flex;gap:6px;margin:18px 0 16px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch}
+  nav.tabs button{
+    flex:0 0 auto;font-family:'Cinzel',serif;font-weight:600;font-size:.82rem;letter-spacing:.08em;
+    color:var(--ink-dim);background:rgba(12,22,52,.6);border:1px solid var(--edge-soft);
+    border-radius:var(--radius);padding:10px 16px;cursor:pointer;transition:.18s;white-space:nowrap;
+  }
+  nav.tabs button:hover{color:var(--ink);border-color:var(--edge)}
+  nav.tabs button[aria-selected="true"]{
+    color:#08101f;background:linear-gradient(180deg,var(--gold),var(--gold-deep));
+    border-color:var(--gold);box-shadow:0 0 16px rgba(240,210,122,.3)}
+
+  /* Turbo cargado: resplandor naranja en la pestaña */
+  nav.tabs button[data-tab="turbo"].charged{
+    color:#ffcf9a;border-color:#ff9a3c;
+    background:linear-gradient(180deg,rgba(255,140,50,.22),rgba(255,110,35,.10));
+    animation:turboPulse 1.4s ease-in-out infinite}
+  nav.tabs button[data-tab="turbo"].charged[aria-selected="true"]{
+    color:#2a1402;background:linear-gradient(180deg,#ffb061,#ff8a2c);
+    border-color:#ff9a3c;box-shadow:0 0 18px rgba(255,140,50,.6);animation:none}
+  @keyframes turboPulse{
+    0%,100%{box-shadow:0 0 10px rgba(255,140,50,.40),0 0 0 1px rgba(255,150,60,.40) inset}
+    50%{box-shadow:0 0 18px rgba(255,150,60,.78),0 0 0 1px rgba(255,170,80,.6) inset}}
+
+  /* Casillas de carga de Turbo */
+  .turbo-carga{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:2px 0 16px;
+    padding:12px 14px;background:rgba(6,12,30,.55);border:1px solid var(--edge-soft);border-radius:var(--radius)}
+  .turbo-carga .tc-label{font-family:'Cinzel',serif;font-weight:600;letter-spacing:.08em;color:var(--gold)}
+  .turbo-carga input{width:74px;text-align:center;padding:7px 8px;font-family:'Spline Sans Mono',monospace}
+  .turbo-carga .tc-sep{color:var(--ink-dim);font-weight:700}
+  .turbo-carga .tc-state{font-size:.82rem;color:var(--ink-dim);margin-left:4px}
+  .turbo-carga.ready{border-color:#ff9a3c;box-shadow:0 0 14px rgba(255,140,50,.25)}
+  .turbo-carga.ready .tc-state{color:#ffb86b;font-weight:700}
+
+  /* ---------- Talentos ---------- */
+  .talent-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-top:6px}
+  .talent-card{background:rgba(10,18,44,.6);border:1px solid var(--edge-soft);border-radius:var(--radius);
+    padding:13px 14px;position:relative;display:flex;flex-direction:column;gap:8px}
+  .talent-card.owned{border-color:var(--gold);box-shadow:0 0 0 1px rgba(240,210,122,.18) inset}
+  .talent-card h4{margin:0;font-family:'Cinzel',serif;font-size:1rem;color:var(--ink);
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;line-height:1.2}
+  .talent-card .t-cost{font-family:'Spline Sans Mono',monospace;font-size:.7rem;color:#08101f;
+    background:linear-gradient(180deg,var(--gold),var(--gold-deep));padding:2px 9px;border-radius:20px;font-weight:700;white-space:nowrap}
+  .talent-card .t-rep{font-size:.6rem;letter-spacing:.06em;color:var(--cyan);
+    border:1px solid rgba(95,224,236,.4);border-radius:20px;padding:1px 7px;text-transform:uppercase}
+  .talent-card .t-desc{font-size:.8rem;color:var(--ink-dim);line-height:1.5;margin:0}
+  .talent-card .t-req{font-size:.72rem;color:var(--mag);font-weight:600}
+  .talent-card .t-req.met{color:var(--hp)}
+  .talent-owned-list{display:flex;flex-wrap:wrap;gap:5px;margin:2px 0}
+  .talent-chip{display:inline-flex;align-items:center;gap:5px;font-size:.76rem;color:var(--ink);
+    background:rgba(240,210,122,.12);border:1px solid rgba(240,210,122,.35);border-radius:6px;padding:4px 9px}
+  .talent-chip .tc-check{color:var(--gold);font-weight:700}
+  .talent-locked{font-size:.74rem;color:var(--cyan);opacity:.85}
+  .t-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:auto}
+  .t-controls select,.t-controls input.t-spec{padding:6px 8px;font-size:.8rem;background:rgba(6,12,30,.7);
+    color:var(--ink);border:1px solid var(--edge-soft);border-radius:6px;flex:1 1 130px;min-width:120px}
+  .t-controls select:focus,.t-controls input.t-spec:focus{outline:none;border-color:var(--cyan)}
+  button.t-buy{font-family:'Cinzel',serif;font-weight:600;font-size:.76rem;letter-spacing:.04em;cursor:pointer;
+    border-radius:6px;padding:7px 13px;border:1px solid var(--gold);color:#08101f;
+    background:linear-gradient(180deg,var(--gold),var(--gold-deep));transition:.15s;white-space:nowrap}
+  button.t-buy:hover{filter:brightness(1.08)}
+  button.t-buy:disabled{opacity:.4;cursor:not-allowed;filter:grayscale(.4)}
+
+  .panel{display:none}
+  .panel.active{display:block;animation:fade .35s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  .section-title{font-family:'Cinzel',serif;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+    font-size:.82rem;color:var(--cyan);margin:0 0 12px;display:flex;align-items:center;gap:10px}
+  .section-title::before{content:"";width:8px;height:8px;transform:rotate(45deg);
+    background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
+
+  .grid{display:grid;gap:16px}
+  .pad{padding:18px}
+
+  /* labels + inputs */
+  label.fld{display:flex;flex-direction:column;gap:5px}
+  label.fld > span{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-dim);font-weight:600}
+  input,select{
+    font-family:'Inter',sans-serif;font-size:.95rem;color:var(--ink);
+    background:rgba(6,12,30,.7);border:1px solid var(--edge-soft);border-radius:5px;
+    padding:9px 11px;width:100%;transition:.15s;
+  }
+  input:focus,select:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(95,224,236,.16)}
+  input[readonly]{background:rgba(20,32,66,.5);color:var(--gold);font-family:'Spline Sans Mono',monospace;
+    border-color:transparent;cursor:default}
+  select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--ink-dim) 50%),linear-gradient(135deg,var(--ink-dim) 50%,transparent 50%);
+    background-position:calc(100% - 16px) 52%,calc(100% - 11px) 52%;background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+  .num{font-family:'Spline Sans Mono',monospace;text-align:center}
+
+  /* identity grid */
+  .id-grid{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+  .meta-grid{grid-template-columns:repeat(3,1fr);margin-top:14px}
+  .meta-grid .gold-val input{color:var(--gold);font-family:'Spline Sans Mono',monospace;font-weight:600}
+
+  /* vitals */
+  .vitals{grid-template-columns:1fr 1fr;margin-top:16px}
+  .gauge{padding:16px}
+  .gauge .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px}
+  .gauge .top b{font-family:'Cinzel',serif;font-size:1.15rem;letter-spacing:.1em}
+  .gauge.hp .top b{color:var(--hp)}
+  .gauge.mp .top b{color:var(--mp2)}
+  .gauge .formula{font-size:.6rem;color:var(--ink-dim);letter-spacing:.1em}
+  .bar{height:14px;border-radius:8px;background:rgba(6,12,30,.8);border:1px solid var(--edge-soft);overflow:hidden;position:relative}
+  .bar > i{display:block;height:100%;border-radius:8px;transition:width .35s ease}
+  .gauge.hp .bar > i{background:linear-gradient(90deg,#3fae5a,var(--hp))}
+  .gauge.mp .bar > i{background:linear-gradient(90deg,#2f7fd1,var(--mp2))}
+  .gauge .nums{display:flex;align-items:center;gap:8px;margin-top:10px;font-family:'Spline Sans Mono',monospace}
+  .gauge .nums input{width:74px;text-align:right}
+  .gauge .brk{display:inline-flex;align-items:center;gap:6px;margin-top:9px;font-family:'Inter',sans-serif;
+    font-size:.72rem;color:var(--ink-dim);cursor:pointer;user-select:none}
+  .gauge .brk:hover{color:var(--ink)}
+  .gauge .brk input{width:16px;height:16px;accent-color:var(--gold);cursor:pointer}
+  .gauge.hp .brk input{accent-color:var(--hp)}
+  .gauge.mp .brk input{accent-color:var(--mp2)}
+  .gauge .nums .max{color:var(--ink-dim)}
+  .gauge .nums .lbl{font-family:'Inter';font-size:.62rem;letter-spacing:.14em;color:var(--ink-dim);text-transform:uppercase;margin-left:auto}
+
+  /* tables */
+  .tbl-scroll{overflow-x:auto;border-radius:var(--radius)}
+  table{width:100%;border-collapse:collapse;font-size:.86rem;min-width:520px}
+  thead th{font-family:'Cinzel',serif;font-weight:600;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;
+    color:#0a1120;background:linear-gradient(180deg,var(--edge),#5d86c2);padding:9px 10px;text-align:left;white-space:nowrap}
+  thead th:first-child{border-top-left-radius:var(--radius)}
+  thead th:last-child{border-top-right-radius:var(--radius)}
+  tbody td{padding:7px 10px;border-bottom:1px solid rgba(136,176,230,.12)}
+  tbody tr:nth-child(even){background:rgba(12,22,52,.4)}
+  tbody tr:hover{background:rgba(95,224,236,.06)}
+  td .name{font-weight:600}
+  td .gov{font-size:.7rem;color:var(--cyan);font-weight:600;letter-spacing:.06em}
+  table input{padding:6px 8px;font-size:.85rem}
+  td.c{text-align:center}
+  .w-rango input{width:64px}
+
+  /* attribute table specifics */
+  .attr-tbl td:first-child{font-family:'Cinzel',serif;font-weight:700;letter-spacing:.06em;color:var(--ink);font-size:.95rem}
+  .attr-tbl .stat-name{font-size:.7rem;color:var(--ink-dim);letter-spacing:.04em}
+  .attr-tbl .stat-val{font-family:'Spline Sans Mono',monospace;color:var(--gold);font-weight:600;text-align:center;font-size:.95rem}
+  .attr-tbl .ro{font-family:'Spline Sans Mono',monospace;color:var(--cyan);text-align:center}
+
+  /* skills 3-col */
+  .skill-cols{column-gap:14px}
+  .skill-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(136,176,230,.1)}
+  .skill-row .sk-name{flex:1;font-size:.84rem}
+  .skill-row .sk-name small{color:var(--cyan);font-weight:600}
+  .skill-row input{width:58px;text-align:center;padding:5px}
+
+  /* magic */
+  .magic-head{display:flex;align-items:center;gap:10px;margin:20px 0 10px}
+  .magic-head h3{font-family:'Cinzel',serif;margin:0;font-size:1rem;letter-spacing:.06em}
+  .magic-head.black h3{color:var(--gold)}
+  .magic-head.white h3{color:var(--gold)}
+  .magic-head.blue h3{color:var(--gold)}
+  .magic-head.tec h3{color:var(--gold)}
+  .magic-head .pill{font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;border-radius:20px;
+    border:1px solid var(--edge-soft);color:var(--ink-dim)}
+  .spell-tbl td .rama{font-size:.68rem;color:var(--ink-dim);letter-spacing:.05em;white-space:nowrap}
+  .spell-tbl td .sp-name{font-weight:600;color:var(--mag)}
+  .spell-tbl .effect{font-size:.8rem;color:var(--ink);line-height:1.45}
+  .spell-tbl .fcalc{color:#8fe3c0;font-weight:700;white-space:nowrap;font-family:'Spline Sans Mono',monospace;font-size:.78rem}
+  .spell-tbl .mp-cell{font-family:'Spline Sans Mono',monospace;text-align:center;white-space:nowrap}
+  .spell-tbl .mp-cell b{color:var(--mp2,#7fd0ff);font-weight:700}
+  .spell-tbl .dmgnum,.spell-tbl .blue-dmg-cell select{font-family:'Spline Sans Mono',monospace;text-align:center}
+  .spell-tbl .blue-dmg-cell{white-space:nowrap;font-size:.8rem}
+  /* equipo */
+  .equip-tbl td:first-child{font-family:'Cinzel',serif;font-weight:700;letter-spacing:.05em;color:var(--ink);font-size:.84rem;white-space:nowrap}
+  .equip-tbl input{width:100%}
+  .equip-tbl input.num{font-family:'Spline Sans Mono',monospace;text-align:center}
+  .inv-box{font-family:'Inter',sans-serif;font-size:.9rem;color:var(--ink);line-height:1.55;
+    background:rgba(6,12,30,.7);border:1px solid var(--edge-soft);border-radius:var(--radius);
+    padding:12px 13px;width:100%;min-height:200px;resize:vertical;margin-top:4px}
+  .inv-box:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(95,224,236,.16)}
+  .chk{width:20px;height:20px;accent-color:var(--gold);cursor:pointer}
+  .chk:disabled{cursor:not-allowed;opacity:1}
+  .chk:disabled:not(:checked){opacity:.45}
+  .blue-slot input.learn{width:100%}
+
+  /* spheres */
+  .sphere-grid{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+  .sphere{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(8,16,40,.6);
+    border:1px solid var(--edge-soft);border-radius:var(--radius);min-width:0}
+  .sphere .dot{width:22px;height:22px;border-radius:50%;flex:0 0 auto;border:1px solid rgba(255,255,255,.35);
+    box-shadow:0 0 10px rgba(0,0,0,.4) inset}
+  .sphere .nm{flex:1 1 auto;min-width:0;font-size:.78rem;font-weight:500;line-height:1.2;overflow-wrap:anywhere}
+  .stepper{display:flex;align-items:center;gap:0;flex:0 0 auto}
+  .stepper button{width:26px;height:26px;border:1px solid var(--edge-soft);background:rgba(12,22,52,.8);
+    color:var(--ink);font-size:1rem;cursor:pointer;border-radius:5px;line-height:1;transition:.12s;flex:0 0 auto}
+  .stepper button:hover{border-color:var(--cyan);color:var(--cyan)}
+  .stepper input{width:38px;text-align:center;border:none;background:transparent;color:var(--gold);
+    font-family:'Spline Sans Mono',monospace;font-weight:600;padding:0;flex:0 0 auto}
+  .sphere-gloss{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;margin-top:8px;font-size:.82rem;line-height:1.45}
+  .sphere-gloss dt{font-weight:700;color:var(--gold);white-space:nowrap}
+  .sphere-gloss dd{margin:0;color:var(--ink-dim,#9fb2d4)}
+  @media(max-width:560px){ .sphere-gloss{grid-template-columns:1fr;gap:2px 0} .sphere-gloss dt{margin-top:8px} }
+  /* sphere action buttons on the board */
+  .sph-btn.armed{border-color:var(--cyan);color:var(--cyan);box-shadow:0 0 0 1px var(--cyan) inset}
+  .board-armed{margin:10px 0 0;padding:10px 14px;border:1px dashed var(--cyan);border-radius:var(--radius);
+    background:rgba(95,224,236,.08);color:var(--cyan);font-size:.85rem;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+  .board-armed button{border:1px solid var(--edge-soft);background:rgba(12,22,52,.8);color:var(--ink);
+    padding:5px 12px;border-radius:6px;cursor:pointer;font-size:.8rem}
+
+  /* toolbar */
+  .toolbar{position:fixed;bottom:0;left:0;right:0;z-index:5;
+    background:linear-gradient(180deg,rgba(7,11,24,.2),rgba(7,11,24,.95));
+    border-top:1px solid var(--edge-soft);padding:11px 16px;display:flex;gap:9px;justify-content:center;flex-wrap:wrap}
+  .btn{font-family:'Cinzel',serif;font-weight:600;letter-spacing:.06em;font-size:.78rem;cursor:pointer;
+    padding:9px 16px;border-radius:6px;border:1px solid var(--edge-soft);background:rgba(14,26,58,.85);color:var(--ink);transition:.15s}
+  .btn:hover{border-color:var(--cyan);color:var(--cyan)}
+  .btn.primary{background:linear-gradient(180deg,var(--gold),var(--gold-deep));color:#0a1120;border-color:var(--gold)}
+  .btn.danger:hover{border-color:var(--danger);color:var(--danger)}
+  .saved-note{font-size:.66rem;color:var(--ink-dim);align-self:center;letter-spacing:.08em;min-width:120px;text-align:center}
+
+  .hint{font-size:.72rem;color:var(--ink-dim);margin-top:8px;line-height:1.5}
+
+  /* formulas info block (atributos) */
+  .formulas-box{margin-top:16px;border-top:1px solid var(--edge-soft);padding-top:14px}
+  .formulas-box .ftit{font-family:'Cinzel',serif;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+    font-size:.7rem;color:var(--cyan);margin-bottom:10px}
+  .formulas-box ul{list-style:none;margin:0;padding:0;display:grid;gap:6px 22px;
+    grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+  .formulas-box li{font-size:.74rem;color:var(--ink-dim);line-height:1.45}
+  .formulas-box li b{color:var(--gold);font-family:'Spline Sans Mono',monospace;font-weight:600;margin-right:6px}
+  .formulas-box li .eq{font-family:'Spline Sans Mono',monospace;color:var(--ink)}
+
+  /* default de habilidad (color del atributo) */
+  .skill-row .sk-def{flex:0 0 auto;min-width:30px;text-align:center;font-family:'Spline Sans Mono',monospace;
+    font-weight:600;font-size:.82rem}
+
+  /* casillas para rellenar más anchas (Atributos + Equipo) */
+  .attr-tbl{min-width:780px}
+  .attr-tbl td.c input{min-width:92px}
+  .equip-tbl{min-width:820px}
+  .equip-tbl input[type=text]{min-width:160px}
+  .equip-tbl input.num{min-width:78px}
+  .equip-tbl select{min-width:72px}
+
+  @media(max-width:680px){
+    .vitals{grid-template-columns:1fr}
+    .meta-grid{grid-template-columns:1fr}
+    .skill-cols{column-count:1 !important}
+  }
+
+  /* ---------- Tablero de esferas ---------- */
+  .esf{font-family:'Spline Sans Mono',monospace;font-size:.62rem;color:var(--hp);margin-left:4px}
+  .board-controls{display:flex;gap:18px;align-items:flex-end;flex-wrap:wrap;margin-bottom:14px}
+  .board-progress{font-family:'Spline Sans Mono',monospace;color:var(--gold);font-size:.84rem;display:flex;align-items:center;gap:10px}
+  .board-progress .pbar{width:160px;height:8px;border-radius:6px;background:rgba(6,12,30,.8);border:1px solid var(--edge-soft);overflow:hidden}
+  .board-progress .pbar > i{display:block;height:100%;background:linear-gradient(90deg,var(--gold-deep),var(--gold));transition:width .3s}
+  .board-legend{display:flex;flex-wrap:wrap;gap:7px 14px;margin-bottom:8px;font-size:.66rem;color:var(--ink-dim)}
+  .board-legend span{display:inline-flex;align-items:center;gap:5px}
+  .board-legend i{width:12px;height:12px;border-radius:50%;display:inline-block;border:1px solid rgba(255,255,255,.25)}
+  .board-track{overflow:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--edge-soft);border-radius:var(--radius);background:rgba(5,10,26,.55);margin:6px 0 14px;max-height:72vh}
+  .board-track.editing{outline:2px dashed var(--mag);outline-offset:-2px}
+  .board-svg{display:block}
+  .board-svg g{cursor:pointer}
+  .board-track.editing .board-svg g{cursor:crosshair}
+  .board-svg g.avail{animation:nodepulse 1.6s ease-in-out infinite}
+  @keyframes nodepulse{0%,100%{filter:drop-shadow(0 0 1px rgba(95,224,236,.4))}50%{filter:drop-shadow(0 0 6px rgba(95,224,236,.95))}}
+  .zoom-ctrl{display:flex;gap:6px;align-items:flex-end}
+  .zoom-ctrl .btn{width:38px;text-align:center;padding:9px 0;font-size:1rem}
+  .chain{display:inline-flex;align-items:center;padding:24px 16px 34px;white-space:nowrap}
+  .start,.end{font-size:.58rem;letter-spacing:.1em;color:var(--ink-dim);text-transform:uppercase;padding:0 8px;flex:0 0 auto}
+  .connector{width:24px;height:3px;background:var(--edge-soft);flex:0 0 auto;border-radius:2px}
+  .connector.done{background:linear-gradient(90deg,var(--gold-deep),var(--gold));box-shadow:0 0 8px rgba(240,210,122,.4)}
+  .node{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-family:'Spline Sans Mono',monospace;
+    font-size:.72rem;font-weight:600;cursor:pointer;flex:0 0 auto;border:2px solid;transition:transform .12s,box-shadow .2s;position:relative}
+  .node:hover{transform:scale(1.12);z-index:2}
+  .node small{position:absolute;bottom:-17px;left:50%;transform:translateX(-50%);font-family:'Inter';font-size:.54rem;
+    color:var(--ink-dim);white-space:nowrap;letter-spacing:.02em;font-weight:500}
+  .node.next{animation:pulse 1.5s ease-in-out infinite}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(95,224,236,.55)}50%{box-shadow:0 0 0 7px rgba(95,224,236,0)}}
+  .board-totals{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px;min-height:10px}
+  .chip{font-size:.7rem;font-family:'Spline Sans Mono',monospace;padding:4px 11px;border-radius:20px;
+    border:1px solid var(--edge-soft);background:rgba(12,22,52,.5);color:var(--ink)}
+  .chip b{color:var(--gold)}
+  .board-actions{display:flex;gap:8px;flex-wrap:wrap}
+  .board-edit{padding:16px;margin-top:14px}
+  .edit-codes{margin-top:8px;font-size:.64rem;color:var(--ink-dim);line-height:1.9}
+  .edit-codes code{background:rgba(12,22,52,.8);padding:2px 6px;border-radius:4px;color:var(--cyan);font-family:'Spline Sans Mono',monospace}
+  @media(prefers-reduced-motion:reduce){.node.next{animation:none;box-shadow:0 0 0 3px rgba(95,224,236,.4)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="crest win">
+    <div class="kanji">ファイナルファンタジー</div>
+    <h1><span class="ff">FINAL</span> FANTASY</h1>
+    <div class="sub">Ficha de Personaje · Rol</div>
+    <div class="crystal-rule"></div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" aria-selected="true" data-tab="personaje">Personaje</button>
+    <button role="tab" aria-selected="false" data-tab="equipo">Equipo</button>
+    <button role="tab" aria-selected="false" data-tab="habilidades">Habilidades</button>
+    <button role="tab" aria-selected="false" data-tab="talentos">Talentos</button>
+    <button role="tab" aria-selected="false" data-tab="clases">Clases</button>
+    <button role="tab" aria-selected="false" data-tab="turbo">Turbo</button>
+    <button role="tab" aria-selected="false" data-tab="offclass">Offclass</button>
+    <button role="tab" aria-selected="false" data-tab="esferas">Esferas</button>
+    <button role="tab" aria-selected="false" data-tab="tablero">Tablero</button>
+  </nav>
+
+  <!-- ============ PERSONAJE ============ -->
+  <section class="panel active" id="personaje">
+    <div class="win pad">
+      <h2 class="section-title">Identidad</h2>
+      <div class="grid id-grid">
+        <label class="fld"><span>Nombre</span><input data-id="nombre" placeholder="Nombre del héroe"></label>
+        <label class="fld"><span>Sexo</span><input data-id="sexo"></label>
+        <label class="fld"><span>Raza</span><input data-id="raza"></label>
+        <label class="fld"><span>Jugador</span><input data-id="jugador"></label>
+        <label class="fld"><span>Clase</span>
+          <select data-id="clase">
+            <option value="">—</option>
+            <option>Dragoon</option><option>Samurai</option><option>Espadachín</option>
+            <option>Tirador</option><option>Ladrón</option><option>Bardo</option>
+            <option>Mago Blanco</option><option>Mago Negro</option><option>Mago Azul</option>
+          </select>
+        </label>
+      </div>
+      <div class="grid meta-grid">
+        <label class="fld gold-val"><span>UD · Unidades de desplazamiento</span><input class="num" type="number" data-id="ud" value="0"></label>
+        <label class="fld gold-val"><span>XP · Experiencia</span><input class="num" type="number" data-id="xp" value="0"></label>
+        <label class="fld gold-val"><span>Gill</span><input class="num" type="number" data-id="gill" value="0"></label>
+      </div>
+    </div>
+
+    <div class="grid vitals">
+      <div class="win gauge hp">
+        <div class="top"><b>HP</b><span class="formula" id="hpFormula">VIT × 36</span></div>
+        <div class="bar"><i id="hpBar"></i></div>
+        <div class="nums">
+          <input class="num" type="number" data-vital="hp_cur" value="0"> <span class="max">/ <b id="hpMax">0</b></span>
+          <span class="lbl">Puntos de vida</span>
+        </div>
+        <label class="brk" title="Ignora el límite de 999 HP y usa el valor completo"><input type="checkbox" data-break="hp"> Romper límite (999)</label>
+      </div>
+      <div class="win gauge mp">
+        <div class="top"><b>MP</b><span class="formula" id="mpFormula">INT × 4</span></div>
+        <div class="bar"><i id="mpBar"></i></div>
+        <div class="nums">
+          <input class="num" type="number" data-vital="mp_cur" value="0"> <span class="max">/ <b id="mpMax">0</b></span>
+          <span class="lbl">Puntos de magia</span>
+        </div>
+        <label class="brk" title="Ignora el límite de 99 MP y usa el valor completo"><input type="checkbox" data-break="mp"> Romper límite (99)</label>
+      </div>
+    </div>
+
+    <div class="win pad" style="margin-top:16px">
+      <h2 class="section-title">Atributos</h2>
+      <div class="tbl-scroll">
+        <table class="attr-tbl">
+          <thead><tr>
+            <th>Atributo</th><th>Base</th><th>Bonus</th><th>Total</th>
+            <th>Rango</th><th>Default</th>
+            <th>Stat derivado</th><th>Bonus</th><th>Valor</th>
+          </tr></thead>
+          <tbody id="attrBody"></tbody>
+        </table>
+      </div>
+      <div id="attrFormulas" class="formulas-box"></div>
+    </div>
+  </section>
+
+  <!-- ============ EQUIPO ============ -->
+  <section class="panel" id="equipo">
+    <div class="win pad">
+      <h2 class="section-title">Equipo · Defensa</h2>
+      <div class="tbl-scroll">
+        <table class="spell-tbl equip-tbl">
+          <thead><tr>
+            <th>Espacio</th><th>Nombre</th><th>Tipo</th>
+            <th class="c" style="width:64px">ARM</th><th class="c" style="width:64px">ARM M.</th>
+            <th class="c" style="width:64px">EVA</th><th class="c" style="width:64px">EVA M.</th>
+            <th>Efectos</th>
+          </tr></thead>
+          <tbody id="armorBody"></tbody>
+        </table>
+      </div>
+
+      <h2 class="section-title" style="margin-top:26px">Equipo · Armas</h2>
+      <div class="tbl-scroll">
+        <table class="spell-tbl equip-tbl">
+          <thead><tr>
+            <th>Espacio</th><th>Nombre</th><th>Tipo</th>
+            <th class="c" style="width:74px">Daño</th>
+            <th class="c" style="width:88px">Atributo</th><th class="c" style="width:84px">Daño total</th>
+            <th>Efectos</th>
+          </tr></thead>
+          <tbody id="weaponBody"></tbody>
+        </table>
+      </div>
+
+      <h2 class="section-title" style="margin-top:26px">Inventario</h2>
+      <textarea id="invBox" class="inv-box" placeholder="Objetos, consumibles, gilles, materiales, llaves… escribe libremente aquí."></textarea>
+      <p class="hint">Todo el equipo y el inventario se guardan automáticamente en la ficha.</p>
+    </div>
+  </section>
+
+  <!-- ============ HABILIDADES ============ -->
+  <section class="panel" id="habilidades">
+    <div class="win pad">
+      <h2 class="section-title">Habilidades · Rango</h2>
+      <div id="skillXP" class="hint" style="margin:-4px 0 12px;font-size:14px">XP disponible para gastar en habilidades: <b style="color:#f0d27a" id="skillXPval">0</b></div>
+      <div class="skill-cols" id="skillCols" style="column-count:3"></div>
+    </div>
+  </section>
+
+  <!-- ============ TÉCNICAS ============ -->
+  <!-- ============ CLASES (técnicas + magias) ============ -->
+  <section class="panel" id="clases">
+    <div class="win pad">
+      <h2 class="section-title">Habilidades y técnicas de clase</h2>
+      <div id="tecAll"></div>
+  
+      <div class="magic-head white">
+        <h3>Mago Blanco</h3><span class="pill">Magia de apoyo</span>
+      </div>
+      <div class="tbl-scroll">
+        <table class="spell-tbl">
+          <thead><tr><th style="width:42px">Act.</th><th>Rama</th><th>Nombre</th><th>Efecto</th><th style="width:54px">MP</th></tr></thead>
+          <tbody id="whiteBody"></tbody>
+        </table>
+      </div>
+
+      <div class="magic-head black">
+        <h3>Mago Negro</h3><span class="pill">Magia de ataque</span>
+      </div>
+      <div class="tbl-scroll">
+        <table class="spell-tbl">
+          <thead><tr><th style="width:42px">Act.</th><th>Rama</th><th>Nombre</th><th>Efecto</th><th style="width:54px">MP</th></tr></thead>
+          <tbody id="blackBody"></tbody>
+        </table>
+      </div>
+
+      <div class="magic-head blue">
+        <h3>Mago Azul</h3><span class="pill">Aprende de enemigos</span>
+      </div>
+      <div class="tbl-scroll">
+        <table class="spell-tbl">
+          <thead><tr><th style="width:42px">Act.</th><th>Rama</th><th>Habilidad aprendida</th><th style="width:170px">Daño (nº × atributo)</th><th style="width:60px">MP</th></tr></thead>
+          <tbody id="blueBody"></tbody>
+        </table>
+      </div>
+      <p class="hint">La casilla «Act.» de cada magia o habilidad se activa automáticamente al activar su nodo correspondiente en el tablero (de izquierda a derecha, en orden de la tabla); ya no se marca a mano. En Mago Azul puedes seguir anotando la habilidad aprendida, su daño (nº × atributo) y su coste de MP. «Aprender» copia habilidades de monstruos durante 1 turno (coste 10 MP).</p>
+    </div>
+  </section>
+
+  <!-- ============ TURBO ============ -->
+  <section class="panel" id="turbo">
+    <div class="win pad">
+      <h2 class="section-title">Turbo</h2>
+      <div class="turbo-carga" id="turboCargaBox">
+        <span class="tc-label">Carga</span>
+        <input class="num" type="number" min="0" inputmode="numeric" data-turbo-carga="cur" id="turboCargaCur" placeholder="0">
+        <span class="tc-sep">/</span>
+        <input class="num" type="number" min="0" inputmode="numeric" data-turbo-carga="max" id="turboCargaMax" placeholder="0">
+        <span class="tc-state" id="turboCargaState">—</span>
+      </div>
+      <textarea id="turboBox" class="inv-box" placeholder="Notas libres de Turbo… escribe lo que quieras aquí."></textarea>
+      <div class="tbl-scroll" style="margin-top:16px">
+        <table class="spell-tbl">
+          <thead><tr><th style="width:42px">Act.</th><th style="width:130px">Nombre</th><th>Habilidad / descripción</th><th style="width:170px">Daño (nº × atributo)</th><th style="width:60px">MP</th></tr></thead>
+          <tbody id="turboBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ OFFCLASS ============ -->
+  <section class="panel" id="offclass">
+    <div class="win pad">
+      <h2 class="section-title">Offclass · Habilidades libres</h2>
+      <div class="tbl-scroll">
+        <table class="spell-tbl">
+          <thead><tr><th style="width:42px">Act.</th><th style="width:130px">Nombre</th><th>Habilidad / descripción</th><th style="width:170px">Daño (nº × atributo)</th><th style="width:60px">MP</th></tr></thead>
+          <tbody id="offBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TALENTOS ============ -->
+  <section class="panel" id="talentos">
+    <div class="win pad">
+      <h2 class="section-title">Talentos</h2>
+      <div class="hint" style="margin:-4px 0 14px;font-size:14px">XP disponible para gastar en talentos: <b style="color:#f0d27a" id="talentXPval">0</b>. Los talentos se adquieren con experiencia, se confirman antes de comprarse y <b>no pueden reembolsarse ni desactivarse</b>. Los talentos repetibles permiten añadir otra especificación.</div>
+      <div class="talent-grid" id="talentGrid"></div>
+    </div>
+  </section>
+
+  <!-- ============ ESFERAS ============ -->
+  <section class="panel" id="esferas">
+    <div class="win pad">
+      <h2 class="section-title">Inventario del tablero de esferas</h2>
+      <div class="grid sphere-grid" id="sphereGrid"></div>
+      <p class="hint">Lleva la cuenta de las esferas disponibles para activar nodos del tablero según tu clase.</p>
+
+      <div class="sphere-help">
+        <h3 class="section-title" style="font-size:1rem;margin-top:18px">Para qué sirve cada esfera</h3>
+        <dl class="sphere-gloss">
+          <dt>Esfera de Vigor</dt><dd>Activa nodos de <b>Fuerza</b> y <b>Vitalidad</b>.</dd>
+          <dt>Esfera de Rapidez</dt><dd>Activa nodos de <b>Agilidad</b> y <b>Velocidad</b>.</dd>
+          <dt>Esfera de Magia</dt><dd>Activa nodos de <b>Intelecto</b> y <b>Voluntad</b>.</dd>
+          <dt>Esfera de Habilidad</dt><dd>Activa nodos de <b>Habilidad, Técnica, Magia Blanca y Magia Negra</b>.</dd>
+          <dt>Esfera Llave Nv.1-4</dt><dd>Activa los <b>nodos de bloqueo</b> del nivel correspondiente (puentes entre clases y acceso al nodo final de cada clase).</dd>
+          <dt>Esfera Supresora</dt><dd>Cambia el tipo de tu <b>nodo actual</b> (debe estar activado y no ser de habilidad/técnica/magia). Gasta además 1 esfera de atributo; el nodo queda con el nuevo tipo y desactivado.</dd>
+          <dt>Esferas de Fuerza · Vitalidad · Intelecto · Voluntad · Agilidad · Velocidad</dt><dd>Se usan junto a la <b>Esfera Supresora</b> para fijar el nuevo tipo del nodo (cada una corresponde a su estadística).</dd>
+          <dt>Esfera Warp</dt><dd>Te teletransporta a <b>cualquier nodo</b> (activado o no) sin gastar UD. Quedas encima del nodo y puedes activarlo después con normalidad.</dd>
+          <dt>Esfera de Retorno</dt><dd>Te mueve a <b>cualquier nodo ya activado</b> sin gastar UD.</dd>
+          <dt>Esfera Amiga</dt><dd>Te mueve a un nodo <b>activado por un aliado</b> sin gastar UD.</dd>
+          <dt>Esfera Maestra</dt><dd><b>Activa cualquier nodo</b> desde cualquier posición, sin gastar UD ni mover tu ubicación.</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TABLERO ============ -->
+  <section class="panel" id="tablero">
+    <div class="win pad">
+      <h2 class="section-title">Tablero de esferas</h2>
+      <div class="board-controls">
+        <label class="fld" style="max-width:240px;width:100%">
+          <span>Tu clase · nodo inicial</span>
+          <select id="boardClass">
+            <option>Dragoon</option><option>Samurai</option><option>Espadachín</option>
+            <option>Tirador</option><option>Ladrón</option><option>Bardo</option>
+            <option>Mago Blanco</option><option>Mago Negro</option><option>Mago Azul</option>
+          </select>
+        </label>
+        <div class="board-progress" id="boardProgress"></div>
+        <div class="zoom-ctrl">
+          <button class="btn" id="zoomOut" title="Alejar">−</button>
+          <button class="btn" id="zoomIn" title="Acercar">+</button>
+        </div>
+        <div class="board-colors" style="display:flex;gap:10px;flex-wrap:wrap">
+          <label class="fld" style="max-width:190px"><span>Color posición y líneas</span><input type="color" id="boardAccent" value="#5fe0ec"></label>
+        </div>
+      </div>
+      <div class="board-legend" id="boardLegend"></div>
+      <div class="board-track" id="boardTrack"></div>
+      <div class="board-totals" id="boardTotals"></div>
+      <div class="board-actions" id="boardActions">
+        <button class="btn sph-btn" data-sphere-act="Esfera Warp">Esfera Warp</button>
+        <button class="btn sph-btn" data-sphere-act="Esfera de Retorno">Esfera de Retorno</button>
+        <button class="btn sph-btn" data-sphere-act="Esfera Amiga">Esfera Amiga</button>
+        <button class="btn sph-btn" data-sphere-act="Esfera Maestra">Esfera Maestra</button>
+        <button class="btn" id="boardEditToggle">Esfera Supresora</button>
+        <button class="btn" id="boardReset" style="display:none">Reiniciar progreso</button>
+      </div>
+      <div class="board-armed" id="boardArmed" style="display:none"></div>
+      <p class="hint">Es un único tablero conectado: cada clase es una fila y los nodos de bloqueo (grises, con su nivel) tienden puentes entre filas. El anillo resalta tu posición actual. Tócala para activar el nodo (gasta la esfera de su tipo del inventario). Para avanzar, toca un nodo unido a tu progreso: cada movimiento a un nodo sin activar cuesta 1 UD (y lo activa al instante si tienes su esfera); moverte sobre nodos ya activados cuesta 1 UD por cada 4. Solo puedes moverte si tu posición actual está activada. Los nodos activados no pueden desactivarse, y una vez activado el nodo inicial la clase queda fijada.<br>Esferas: pulsa un botón de esfera y luego elige el nodo de destino; se pedirá confirmación y se gastará 1 esfera. <b>Warp</b> te mueve a cualquier nodo sin gastar UD; <b>Retorno</b> a cualquier nodo ya activado; <b>Amiga</b> a un nodo activado por un aliado; <b>Maestra</b> activa cualquier nodo sin moverte ni gastar UD. La <b>Esfera Supresora</b> cambia el tipo de tu nodo actual (debe estar activado y no ser de habilidad/técnica/magia): pulsa el botón, elige la esfera de atributo a gastar (Fuerza, Vitalidad, Intelecto, Voluntad, Agilidad o Velocidad) y confirma; se consumen 1 Esfera Supresora + 1 de atributo, y el nodo queda con el nuevo tipo y desactivado (actívalo luego con su esfera de Vigor/Rapidez/Magia).</p>
+    </div>
+  </section>
+
+</div>
+
+<!-- ============ TOOLBAR ============ -->
+<div class="toolbar">
+  <button class="btn primary" id="saveBtn">Guardar</button>
+  <button class="btn" id="exportBtn">Exportar</button>
+  <button class="btn" id="importBtn">Importar</button>
+  <button class="btn danger" id="resetBtn">Nueva ficha</button>
+  <span class="saved-note" id="savedNote"></span>
+</div>
+<input type="file" id="fileInput" accept="application/json" style="display:none">
+
+<script>
+"use strict";
+
+/* ---------- Datos de referencia ---------- */
+const ATTRS = [
+  {k:"FUE", name:"Fuerza"},
+  {k:"VIT", name:"Vitalidad"},
+  {k:"AGI", name:"Agilidad"},
+  {k:"VEL", name:"Velocidad"},
+  {k:"INT", name:"Intelecto"},
+  {k:"VOL", name:"Voluntad"},
+];
+/* color de cada atributo (para resaltar el Default de las habilidades) */
+const ATTR_COLOR = {FUE:"#e85b4a",VIT:"#4f86e0",AGI:"#e3c84a",VEL:"#7fb0e8",INT:"#e8743a",VOL:"#5a8ad0"};
+
+/* stat derivado anclado a la fila del atributo, con su componente editable */
+const DERIVED = {
+  FUE:{label:"EVA", desc:"AGI + VEL + EVA equipo", comp:"eva_base", compLabel:"EVA equipo"},
+  VIT:{label:"EVA M.", desc:"VOL + INT + EVA M. equipo", comp:"evam_base", compLabel:"EVA M. equipo"},
+  AGI:{label:"ARM", desc:"ARM × VIT × 0.025 + ARM", comp:"arm_base", compLabel:"ARM base"},
+  VEL:{label:"ARM M.", desc:"ARM M. × VOL × 0.025 + ARM M.", comp:"armm_base", compLabel:"ARM M. base"},
+  INT:{label:"PUN", desc:"AGI × 4 + Hab. Arma", comp:"hab_arma", compLabel:"Hab. Arma"},
+  VOL:{label:"PUN M.", desc:"INT × 4 + 100", comp:null, compLabel:null},
+};
+
+/* Componentes del stat derivado que se rellenan automáticamente sumando la pestaña Equipo */
+const COMP_FROM_ARMOR = { eva_base:"eva", evam_base:"evam", arm_base:"arm", armm_base:"armm" };
+/* Habilidades de arma válidas para la puntería (se leen de la pestaña Habilidades) */
+const HAB_ARMA_SKILLS = ["Armas a una mano","Armas a dos manos","Armas a distancia","Armas mágicas","Pelea"];
+
+const SKILLS = [
+  ["Armas a una mano",null],["Armas a dos manos",null],["Armas a distancia",null],
+  ["Armas mágicas",null],["Pelea",null],
+  ["Alquimia","INT"],["Artilugios","INT"],["Artes","INT"],["Azar","VOL"],["Callejeo","INT"],
+  ["Cerrajería","AGI"],["Ciencias naturales","INT"],["Ciencias sociales","INT"],
+  ["Conducir vehículo","AGI"],["Conducir maquinaria / artillería","AGI"],["Disfrazarse","VOL"],
+  ["Discreción","AGI"],["Explosivos","INT"],["Esoterismo","INT"],["Habilidad artesanal","INT"],
+  ["Habilidad artística","AGI"],["Idioma","INT"],["Intimidar","FUE"],["Juegos de manos","AGI"],
+  ["Liderazgo","VOL"],["Historia","INT"],["Medicina","INT"],["Mecánica","INT"],["Orientación","INT"],
+  ["Percepción","INT"],["Persuasión","VOL"],["Robo","AGI"],["Supervivencia","INT"],["Sistemas","INT"],
+  ["Trampas","INT"],["Trato animal","VOL"],
+];
+
+const BLACK = [
+  ["Mago Negro 1","M.elemental 1","Piro y Hielo: Inflige (4 × INT) de HP de Fuego o Frío. (Coste 4 MP)"],
+  ["Mago Negro 2","M.elemental 2","Aqua y Electro: Inflige (4 × INT) de HP de Agua o Rayo. (Coste 4 MP)"],
+  ["Mago Negro 3","Aspir","Absorbe la VOL del usuario en maná del objetivo. (Coste 6 MP)"],
+  ["Mago Negro 4","Gravedad","Inflige un 50% de la vida actual del enemigo; si el objetivo es volador lo ancla al suelo. 50% de posibilidades. (Coste 8 MP)"],
+  ["Mago Negro 5","M.elemental +1","Piro+ y Hielo+: Inflige (9 × INT) de HP de Fuego o Frío. (Coste 8 MP)"],
+  ["Mago Negro 6","M.elemental +2","Aqua+ y Electro+: Inflige (9 × INT) de HP de Agua o Rayo. (Coste 8 MP)"],
+  ["Mago Negro 7","Muerte","30% / 10% / 1% de posibilidades de matar a un objetivo. (Coste 12 MP)"],
+  ["Mago Negro 8","M.elemental ++1","Piro++ y Hielo++: Inflige (14 × INT) de HP de Fuego o Frío (Coste 14 MP). Grupo (máx. 3): (10 × INT)."],
+  ["Mago Negro 9","M.elemental ++2","Aqua++ y Electro++: Inflige (14 × INT) de HP de Agua o Rayo (Coste 14 MP). Grupo (máx. 3): (10 × INT)."],
+  ["Mago Negro 10","Fulgor","Inflige (20 × INT) de HP de daño no elemental a un objetivo. (Coste 20 MP)"],
+  ["Mago Negro 11","Magia doble","Permite usar dos magias iguales por turno."],
+  ["Mago Negro 12","Artema","(Grupo) (Rompe límite) Inflige (42 × INT) de HP de daño no elemental. (Coste 33 MP)"],
+];
+
+const BLUE = [
+  ["Mago Azul 1","Aprender",true],
+  ["Mago Azul 2","Habilidad Básica 1",false],
+  ["Mago Azul 3","Habilidad Básica 2",false],
+  ["Mago Azul 4","Habilidad Básica 3",false],
+  ["Mago Azul 5","Habilidad Avanzada 1",false],
+  ["Mago Azul 6","Habilidad Básica 4",false],
+  ["Mago Azul 7","Habilidad Avanzada 2",false],
+  ["Mago Azul 8","Habilidad Especial 1",false],
+  ["Mago Azul 9","Habilidad Avanzada 3",false],
+  ["Mago Azul 10","Habilidad Básica 5",false],
+  ["Mago Azul 11","Habilidad Avanzada 4",false],
+  ["Mago Azul 12","Habilidad Especial 2",false],
+];
+
+/* Habilidades libres (Turbo / Offclass) — estilo Mago Azul, sin depender del tablero */
+const TURBO_ROWS = 20;
+const OFF_ROWS = 50;
+function freeRow(){ return {on:false,name:"",text:"",coef:"",attr:"",mp:""}; }
+
+/* ---------- Talentos ---------- */
+const WEAPON_CATS = ["A una mano","A dos manos","A distancia","Mágicas","Pelea"];
+const MONSTER_TYPES = ["Aéreo","Amorfo","Acuático","Arcano","Bestia","Constructos","Dragón","Demonio","Humanoide","Insecto","Reptil","Planta","No muerto"]; // "Anormal" no es elegible
+const ELEMENTS = ["Fuego","Hielo","Rayo","Agua","Viento","Tierra","Sagrado","Sombra","Bio"];
+const STATUSES = ["Berserk","Encanto","Confusión","Veneno","Toxina","Ceguera","Maldición","Piedra","Mutis","Sueño","Muerte","Mini","Rana","Zombie","Inmovilización","Freno","Paro","Deshabilitar"];
+const TALENTS = [
+  {id:"diestro", name:"Diestro", cost:20, repeatable:true, spec:{type:"list", label:"Categoría de arma", options:WEAPON_CATS},
+   desc:"Calcula el daño con una categoría de Arma elegida usando AGI en lugar de STR."},
+  {id:"ambidiestro", name:"Ambidiestro", cost:30,
+   desc:"Sin penalizaciones por ataques con la Mano Torpe, y el personaje puede comprar el talento Dos Armas."},
+  {id:"dosarmas", name:"Dos Armas", cost:50, requires:"ambidiestro", requiresLabel:"Ambidiestro",
+   desc:"Permite combatir con dos armas y atacar una vez con cada una. Requiere Ambidiestro."},
+  {id:"reflejos", name:"Reflejos de Combate", cost:15,
+   desc:"Nunca puede ser sorprendido, siempre actúa en la Ronda Preventiva si lo emboscan y es inmune a la condición Desprevenido."},
+  {id:"lunallena", name:"Corazón de Luna Llena", cost:10,
+   desc:"Los Objetos/efectos que restauran MP otorgan +25% de sus Puntos de Magia habituales. No afecta a Drenaje ni a la recuperación de HP."},
+  {id:"gillonario", name:"Gillonario", spec:{type:"tier", label:"Nivel", options:[
+     {label:"+5% Gil", cost:5},{label:"+10% Gil", cost:10},{label:"+15% Gil", cost:15},{label:"+20% Gil", cost:20}]},
+   desc:"Aumenta la parte de Gil del personaje por encuentro/misión: 5 pts +5%; 10 pts +10%; 15 pts +15%; 20 pts +20%."},
+  {id:"marcadiosa", name:"Marca de la Diosa", cost:10,
+   desc:"Los Objetos, Conjuros y efectos que restauran HP otorgan +25% de sus Puntos de Vida habituales. No afecta a Drenaje ni a la recuperación de MP."},
+  {id:"buenafortuna", name:"Buena Fortuna", cost:10, repeatable:true,
+   desc:"Repite cualquier tirada de un dado, una vez por uso. Las tiradas no usadas no se acumulan."},
+  {id:"endurecido", name:"Endurecido", cost:10,
+   desc:"Puntos de Vida extra por VIT: +4 HP."},
+  {id:"cazamonstruos", name:"Cazamonstruos", cost:30, repeatable:true, spec:{type:"list", label:"Tipo de monstruo", options:MONSTER_TYPES},
+   desc:"+100% de daño con cada Acción de Ataque contra un tipo de monstruo declarado. No se puede elegir Anormal como Categoría."},
+  {id:"elemento", name:"Elemento Personal", cost:30, repeatable:true, spec:{type:"list", label:"Elemento", options:ELEMENTS},
+   desc:"25% de daño adicional con un Elemento de Combate elegido. No se acumula con el Potenciador de [Elemento]: usa el mejor bono."},
+  {id:"almapura", name:"Alma Pura", cost:10,
+   desc:"Puntos de Magia extra por INT: +2 MP."},
+  {id:"resistencia", name:"Resistencia", cost:10, repeatable:true, spec:{type:"list", label:"Estado alterado", options:STATUSES},
+   desc:"25% de resistencia a un estado alterado."},
+  {id:"armainsignia", name:"Arma Insignia", cost:30, repeatable:true, spec:{type:"list", label:"Tipo de arma", options:WEAPON_CATS},
+   desc:"Amplía el rango de Golpe Crítico con un tipo de Arma elegida a 1-15. No se acumula con Crítico+/Crítico++: usa el mejor rango."},
+  {id:"armainsigniaplus", name:"Arma Insignia+", cost:50, repeatable:true, requires:"armainsignia", requiresLabel:"Arma Insignia",
+   spec:{type:"list", label:"Tipo de arma", optionsFrom:"armainsignia", emptyMsg:"Elige primero un tipo de arma en Arma Insignia"},
+   desc:"Requiere Arma Insignia. Amplía el rango de Golpe Crítico (a 1-20) con un tipo de Arma ya elegido en Arma Insignia. No se acumula con Crítico+/Crítico++: usa el mejor rango."},
+  {id:"tenaz", name:"Tenaz", cost:10,
+   desc:"Si el personaje termina una batalla con 0 HP o menos, revive con 1 HP una vez terminada la batalla. No tiene efecto durante una batalla en curso (solo una Cola de Fénix, Lázaro o similar lo revive a mitad de combate) ni sobre condiciones como Petrificación."},
+];
+
+/* Técnicas de clase (hojas 3-4 del PDF) */
+const TEC_ORDER = ["Dragoon","Samurai","Espadachín","Tirador","Ladrón","Bardo"];
+const TEC_DATA = {
+  "Dragoon":[
+    ["Dragoon 1","Salto","Salta y evade el daño durante 1 turno. Cae al siguiente turno infligiendo 100% del daño físico. Puede tener de objetivo a enemigos voladores. (Coste 5 MP)"],
+    ["Dragoon 2","Alma de dragón","Absorbe (4 × VIT) de HP de daño mágico no elemental. (Coste 5 MP)"],
+    ["Dragoon 3","Aliento de fuego","Inflige (8 × VIT) de HP de Fuego mágico. (Coste 9 MP) Grupo (máx. 3): (6 × VIT) de HP de Fuego mágico."],
+    ["Dragoon 4","Aliento de rayo","Inflige (8 × VIT) de HP de Rayo mágico. (Coste 9 MP) Grupo (máx. 3): (6 × VIT) de HP de Rayo mágico."],
+    ["Dragoon 5","Aliento de hielo","Inflige (8 × VIT) de HP de Hielo mágico. (Coste 9 MP) Grupo (máx. 3): (6 × VIT) de HP de Hielo mágico."],
+    ["Dragoon 6","Salto alto","Mejora Salto durante 10 turnos. +100% de daño al caer. (Coste 40 MP)"],
+    ["Dragoon 7","Mata dragones","Inflige +100% de daño a wyverns y dragones. Puede utilizarse en combinación con Salto. (Coste 20 MP)"],
+  ],
+  "Samurai":[
+    ["Samurai 1","Rompebrazo","Ataca y reduce el ataque físico enemigo en un 25% durante 5 turnos. (Coste 5 MP)"],
+    ["Samurai 2","Guardia","Reduce el daño recibido en un 50% hasta el próximo turno."],
+    ["Samurai 3","Rompemente","Ataca y reduce el ataque mágico enemigo en un 25% durante 5 turnos. (Coste 5 MP)"],
+    ["Samurai 4","Rompecoraza","Ataca y reduce la armadura física del enemigo en un 25% durante 5 turnos. (Coste 5 MP)"],
+    ["Samurai 5","Rompemagia","Ataca y reduce la armadura mágica del enemigo en un 25% durante 5 turnos. (Coste 5 MP)"],
+    ["Samurai 6","Provocar","Hace que el objetivo se fije en el usuario y lo ataque a él durante 3 turnos."],
+    ["Samurai 7","Bushido","Ataca y aplica sangrado durante 1 turno. Por cada efecto rompedor que sufra el objetivo se aplica sangrado durante 1 turno extra, llegando a un máximo total de 5 turnos. (Coste 20 MP)"],
+  ],
+  "Espadachín":[
+    ["Espadachín 1","Prisa","Otorga una acción extra al objetivo durante 3 turnos. (Coste 5 MP)"],
+    ["Espadachín 2","Freno","Reduce la iniciativa del objetivo a la mitad durante 3 turnos. (Coste 5 MP)"],
+    ["Espadachín 3","Freno+","(Grupo) Reduce la iniciativa de los objetivos a la mitad durante 3 turnos. (Coste 12 MP)"],
+    ["Espadachín 4","Prisa+","(Grupo) Otorga una acción extra a los objetivos durante 3 turnos. (Coste 12 MP)"],
+    ["Espadachín 5","Ataque veloz","Ataca y aumenta la evasión propia en el valor de VEL del usuario durante 3 turnos. (Coste 15 MP)"],
+    ["Espadachín 6","Ataque rápido","Ataca y efectúa un segundo ataque que inflige la mitad de daño. Las resistencias se cuentan una única vez. (Coste 20 MP)"],
+  ],
+  "Tirador":[
+    ["Tirador 1","Ataque niebla","25% de posibilidades de infligir ceguera durante 5 turnos. (Coste 5 MP)"],
+    ["Tirador 2","Ataque mutis","25% de posibilidades de infligir mutis durante 5 turnos. (Coste 5 MP)"],
+    ["Tirador 3","Ataque morfeo","25% de posibilidades de infligir sueño durante 5 turnos. (Coste 5 MP)"],
+    ["Tirador 4","Ataque confu","25% de posibilidades de infligir confusión durante 5 turnos. (Coste 5 MP)"],
+    ["Tirador 5","Ataque locura","25% de posibilidades de infligir berserker durante 5 turnos. (Coste 5 MP)"],
+    ["Tirador 6","Ataque bio","25% de posibilidades de infligir veneno durante 5 turnos. (Coste 5 MP)"],
+    ["Tirador 7","Penalti triple","Triplica las posibilidades de infligir estados alterados durante 3 turnos. (Coste 25 MP)"],
+  ],
+  "Ladrón":[
+    ["Ladrón 1","Robar","50% posibilidades de robar un objeto."],
+    ["Ladrón 2","Usar","Usa objetos especiales."],
+    ["Ladrón 3","Lanzamonedas","Usa dinero para hacer daño plano igual a (Gilles usados / 10)."],
+    ["Ladrón 4","Sobornar","Ofrece una cantidad de gilles al enemigo para que huya."],
+    ["Ladrón 5","Arrebatar","Ataque normal con un 50% de posibilidades de robar un objeto. (Coste 10 MP)"],
+    ["Ladrón 6","Saquear","Ataque normal con un 50% de posibilidades de robar gilles. (Coste 10 MP)"],
+    ["Ladrón 7","Mano veloz","Usa un objeto antes de su turno, adelantando a los demás combatientes (gasta su acción). Debe anunciarse con anterioridad. (Coste 10 MP)"],
+    ["Ladrón 8","Mímica","Repite la última acción aliada sin coste de MP."],
+  ],
+  "Bardo":[
+    ["Bardo 1","Marcha militar","(Grupo) Reduce el daño físico recibido en un 25% durante 3 turnos. (Coste 8 MP)"],
+    ["Bardo 2","Balada espiritual","(Grupo) Reduce el daño mágico recibido en un 25% durante 3 turnos. (Coste 8 MP)"],
+    ["Bardo 3","Riff de batalla","(Grupo) Aumenta el daño físico infligido en un 25% durante 3 turnos. (Coste 10 MP)"],
+    ["Bardo 4","Sonata resonante","(Grupo) Aumenta el daño mágico infligido en un 25% durante 3 turnos. (Coste 10 MP)"],
+    ["Bardo 5","Melodía envigorizante","(Grupo) Aumenta en 10 la VEL durante 3 turnos. (Coste 10 MP)"],
+    ["Bardo 6","Etude revitalizador","(Grupo) Restaura estados alterados. (Coste 15 MP)"],
+    ["Bardo 7","Canción sin nombre","(Grupo) Otorga 2 buffs aleatorios durante 3 turnos. (Coste 20 MP) Posibles buffs: Full Anti-Elemento, Espejo, Revitalia, Auto-Lázaro."],
+    ["Bardo 8","Réquiem","El objetivo recibe un 25% de daño extra de todos los orígenes durante el resto del combate. (Coste 50 MP)"],
+  ],
+};
+
+/* Magia de Mago Blanco (hoja 4 del PDF) */
+const WHITE = [
+  ["Mago Blanco 1","Cura","Restaura (4 × VOL) de HP. (Coste 4 MP)"],
+  ["Mago Blanco 2","Esna","Restaura estados alterados. (Coste 6 MP)"],
+  ["Mago Blanco 3","Libra","Muestra las estadísticas del enemigo. (Coste 4 MP)"],
+  ["Mago Blanco 4","Anti-Elemento","Concede inmunidad ante un ataque elemental. (Coste 6 MP)"],
+  ["Mago Blanco 5","Lázaro","Revive a un aliado con un 25% de su HP. (Coste 8 MP)"],
+  ["Mago Blanco 6","Cura+","Restaura (9 × VOL) de HP. (Coste 8 MP)"],
+  ["Mago Blanco 7","Coraza","(Grupo máx. 3 objetivos) Reduce el daño físico en un 25% durante 3 turnos. (Coste 8 MP)"],
+  ["Mago Blanco 8","Escudo","(Grupo máx. 3 objetivos) Reduce el daño mágico en un 25% durante 3 turnos. (Coste 8 MP)"],
+  ["Mago Blanco 9","Espejo","Refleja los hechizos lanzados al objetivo durante 3 turnos. (Coste 10 MP)"],
+  ["Mago Blanco 10","Antimagia","Restaura los estados alterados (beneficiosos y perniciosos) del objetivo. (Coste 10 MP)"],
+  ["Mago Blanco 11","Revitalia","Recupera un 10% de su vida máxima por turno durante 5 turnos. (Coste 12 MP)"],
+  ["Mago Blanco 12","Cura++","Restaura (14 × VOL) de HP. (Coste 14 MP) Grupo (máx. 3): (10 × VOL) de HP."],
+  ["Mago Blanco 13","Lázaro+","Revive a un aliado con un 100% de su HP. (Coste 16 MP)"],
+  ["Mago Blanco 14","Auto-Lázaro","Revive a un aliado con un 25% de su HP automáticamente si queda inconsciente. (Coste 20 MP)"],
+  ["Mago Blanco 15","Sanctus","Inflige (36 × INT) de HP de Luz. (Coste 25 MP)"],
+];
+
+/* Equipo (hoja 2 del PDF) */
+const ARMOR_SLOTS = ["Cabeza","Cuerpo","Manos","Accesorio","Escudo"];
+const ARMOR_FIELDS = [["nombre","Nombre",false],["tipo","Tipo",false],["arm","ARM",true],["armm","ARM M.",true],["eva","EVA",true],["evam","EVA M.",true],["ef","Efectos",false]];
+const WEAPON_SLOTS = ["Mano der.","Mano izq."];
+const WEAPON_FIELDS = [["nombre","Nombre",false],["tipo","Tipo",false],["dano","Daño",true],["ef","Efectos",false]];
+
+const SPHERES = [
+  ["Esfera de Vigor","#e85b4a"],["Esfera de Rapidez","#e3c84a"],["Esfera de Magia","#4a78e3"],
+  ["Esfera de Habilidad","#7c5fe0"],
+  ["Esfera Supresora","#16181d"],
+  ["Esfera de Fuerza","#e85b4a"],["Esfera de Vitalidad","#4f86e0"],
+  ["Esfera de Intelecto","#e8743a"],["Esfera de Voluntad","#5a8ad0"],
+  ["Esfera de Agilidad","#b0e34a"],["Esfera de Velocidad","#efe39a"],
+  ["Esfera Llave Nv.1","#8a8f9c"],
+  ["Esfera Llave Nv.2","#8a8f9c"],["Esfera Llave Nv.3","#8a8f9c"],
+  ["Esfera Llave Nv.4","#8a8f9c"],["Esfera Warp","#4fd1e0"],
+  ["Esfera de Retorno","#5fe08a"],["Esfera Amiga","#e07ad0"],["Esfera Maestra","#f0d27a"],
+];
+
+const NODE = {
+  FUE:{lbl:"Fuerza",    ab:"FU", color:"#e85b4a", attr:"FUE", sph:"Esfera de Vigor",    grp:"stat"},
+  VIT:{lbl:"Vitalidad", ab:"VI", color:"#4f86e0", attr:"VIT", sph:"Esfera de Vigor",    grp:"stat"},
+  AGI:{lbl:"Agilidad",  ab:"AG", color:"#e3c84a", attr:"AGI", sph:"Esfera de Rapidez", grp:"stat"},
+  VEL:{lbl:"Velocidad", ab:"VE", color:"#efe39a", attr:"VEL", sph:"Esfera de Rapidez", grp:"stat"},
+  INT:{lbl:"Intelecto", ab:"IN", color:"#e8743a", attr:"INT", sph:"Esfera de Magia",    grp:"stat"},
+  VOL:{lbl:"Voluntad",  ab:"VO", color:"#5a8ad0", attr:"VOL", sph:"Esfera de Magia",    grp:"stat"},
+  TEC:{lbl:"Técnica",      ab:"TÉ", color:"#9b6fd4", sph:"Esfera de Habilidad", grp:"hab"},
+  HAB:{lbl:"Habilidad",    ab:"HA", color:"#8a5fd0", sph:"Esfera de Habilidad", grp:"hab"},
+  MBL:{lbl:"Magia Blanca", ab:"MB", color:"#b388e0", sph:"Esfera de Habilidad", grp:"hab"},
+  MNE:{lbl:"Magia Negra",  ab:"MN", color:"#7048b0", sph:"Esfera de Habilidad", grp:"hab"},
+  BLO:{lbl:"Bloqueo",      ab:"▦",  color:"#8a8f9c", sph:"Esfera Llave Nv.1", grp:"lock"},
+};
+
+/* Estructura tipo Sphere Grid (FFX): cada clase es una fila formada por
+   agrupaciones circulares (anillos) de 5-7 nodos enlazadas por una espina
+   horizontal. Los bloqueos propios de cada clase forman una cadena lineal
+   y progresiva AL FINAL del último clúster que aísla únicamente el NODO FINAL
+   (la última técnica/habilidad/magia): hay que abrirlos todos para acceder a él.
+   Además, entre cada par de clases hay 4 caminos de bloqueo (Nv.1-4,
+   crecientes de izquierda a derecha) que unen los clústeres centrales. */
+const ROW_ORDER = ["Dragoon","Samurai","Espadachín","Tirador","Ladrón","Bardo","Mago Blanco","Mago Negro","Mago Azul"];
+
+/* Composición exacta de nodos de estadística/habilidad por clase (sin bloqueos). */
+const COMP = {
+  "Dragoon":    {FUE:6, VEL:4, AGI:4, VIT:6, INT:2, VOL:3, TEC:5, HAB:2},
+  "Samurai":    {FUE:8, VEL:2, AGI:3, VIT:7, INT:2, VOL:3, TEC:5, HAB:2},
+  "Espadachín": {FUE:6, VEL:5, AGI:5, VIT:5, INT:3, VOL:1, MBL:4, TEC:2},
+  "Tirador":    {FUE:4, VEL:3, AGI:8, VIT:3, INT:4, VOL:3, TEC:7},
+  "Ladrón":     {FUE:3, VEL:8, AGI:5, VIT:4, INT:1, VOL:4, TEC:2, HAB:6},
+  "Bardo":      {FUE:3, VEL:5, AGI:5, VIT:4, INT:4, VOL:4, HAB:8},
+  "Mago Blanco":{FUE:2, VEL:4, AGI:2, VIT:3, INT:6, VOL:8, MBL:15},
+  "Mago Negro": {FUE:2, VEL:3, AGI:2, VIT:3, INT:9, VOL:6, MNE:11, HAB:1},
+  "Mago Azul":  {FUE:3, VEL:4, AGI:3, VIT:3, INT:6, VOL:6, HAB:12},
+};
+/* Niveles de los bloqueos propios que cierran el último clúster de cada clase. */
+const LOCKS = {
+  "Dragoon":[2,3,4], "Samurai":[2,3,4], "Espadachín":[1,2,3,4],
+  "Tirador":[2,3,4], "Ladrón":[2,4,4], "Bardo":[2,4,4],
+  "Mago Blanco":[4,4], "Mago Negro":[4,4,4], "Mago Azul":[2,2,4],
+};
+/* Tipo del nodo final (la última técnica/habilidad/magia) que cierra cada clase. */
+const SIG = {
+  "Dragoon":"TEC", "Samurai":"TEC", "Espadachín":"TEC", "Tirador":"TEC",
+  "Ladrón":"HAB", "Bardo":"HAB", "Mago Blanco":"MBL", "Mago Negro":"MNE", "Mago Azul":"HAB",
+};
+
+const BRD = { X0:120, TOPY:80, ROWH:158, GAP:46, LOCKSTEP:34 };
+
+/* Reparte cada tipo de nodo de forma uniforme a lo largo de la fila. */
+function weave(counts){
+  const types=Object.keys(counts).filter(t=>counts[t]>0);
+  const total=types.reduce((s,t)=>s+counts[t],0);
+  const placed={}; types.forEach(t=>placed[t]=0);
+  const out=[];
+  for(let i=0;i<total;i++){
+    let best=null,bv=Infinity;
+    types.forEach(t=>{ if(placed[t]<counts[t]){ const v=(placed[t]+0.5)/counts[t]; if(v<bv){bv=v;best=t;} } });
+    out.push(best); placed[best]++;
+  }
+  return out;
+}
+/* Divide n nodos en clústeres de tamaño 5-6 (dentro del rango 5-7 pedido). */
+function chunkSizes(n){
+  const k=Math.max(1,Math.ceil(n/6));
+  const base=Math.floor(n/k), rem=n%k, s=[];
+  for(let i=0;i<k;i++) s.push(base+(i<rem?1:0));
+  return s;
+}
+
+/* Construye el grafo: nodos {id,x,y,type,grp,row,level}, aristas, adyacencia. */
+function buildBoard(){
+  const nodes={}, edges=[], starts=[];
+  const rowNodes=[];      // nodos (no bloqueo) de cada fila, para puentes inter-clase
+  const ringCenters=[];   // x del centro de cada anillo, por fila
+  const add=(id,x,y,type,extra={})=>{ const t=NODE[type]; nodes[id]={id,x,y,type,grp:t.grp,...extra}; };
+  const rowY = r => BRD.TOPY + r*BRD.ROWH;
+
+  /* --- Filas: anillos enlazados por espina; el último clúster es accesible y solo
+         el NODO FINAL (técnica/habilidad/magia) queda aislado tras la cadena de bloqueos --- */
+  ROW_ORDER.forEach((cls,r)=>{
+    const cy=rowY(r);
+    const sigType = SIG[cls];
+    const comp2 = {...COMP[cls]}; comp2[sigType] -= 1;       // reservar la última técnica/hab/magia
+    const seq = weave(comp2);                                // los anillos llevan el resto de nodos
+    const sizes = chunkSizes(seq.length);
+    const lockLv = [...LOCKS[cls]].sort((a,b)=>a-b);          // progresivo: nivel creciente
+
+    let idx=0, cx=BRD.X0, prevExit=null, lastExitX=BRD.X0;
+    const mine=[], centers=[];
+    sizes.forEach((k,ci)=>{
+      const ringR = 15/Math.sin(Math.PI/k) + 3;
+      const RX = ringR + 14, RY = ringR*0.82;
+      const ccx = cx + RX;
+      const ids=[]; let entry=null, exit=null, minX=Infinity, maxX=-Infinity;
+      for(let i=0;i<k;i++){
+        const ang = Math.PI - i*(2*Math.PI/k);                // arranca por la izquierda
+        const x = ccx + RX*Math.cos(ang);
+        const y = cy  + RY*Math.sin(ang);
+        const id = `${r}-c${ci}n${i}`;
+        add(id, x, y, seq[idx++], {row:r});
+        ids.push(id); mine.push(id);
+        if(x<minX){ minX=x; entry=id; }
+        if(x>maxX){ maxX=x; exit=id; }
+      }
+      for(let i=0;i<k;i++) edges.push([ids[i], ids[(i+1)%k]]); // anillo cerrado
+      if(k>=5) edges.push([ids[1], ids[k-2]]);                 // diagonal ( / ): permite recorrer todo el clúster sin volver atrás
+      if(prevExit) edges.push([prevExit, entry]);              // espina horizontal
+      if(ci===0) starts[r]=entry;
+      centers.push(ccx);
+      prevExit=exit; lastExitX=maxX;
+      cx = ccx + RX + BRD.GAP;
+    });
+
+    /* Cadena lineal de bloqueos al final del último clúster: aísla solo el nodo final. */
+    let prev=prevExit, lx=lastExitX + BRD.LOCKSTEP;
+    lockLv.forEach((level,li)=>{
+      const id=`L${r}-${li}`;
+      add(id, lx + li*BRD.LOCKSTEP, cy, "BLO", {row:r, level, gate:"final"});
+      edges.push([prev,id]); prev=id;
+    });
+    const fid=`${r}-final`;                                   // la última técnica/habilidad/magia, aislada
+    add(fid, lx + lockLv.length*BRD.LOCKSTEP, cy, sigType, {row:r, final:true});
+    edges.push([prev, fid]);
+
+    rowNodes[r]=mine; ringCenters[r]=centers;                 // (el nodo final no es ancla inter-clase)
+  });
+
+  /* --- Caminos inter-clase: 4 bloqueos (Nv.1-4, crecientes) en los clústeres centrales --- */
+  const nearestByX=(list,x)=>list.reduce((b,id)=> Math.abs(nodes[id].x-x)<Math.abs(nodes[b].x-x)?id:b, list[0]);
+  const topNodeOf=(r2,x)=>{                                   // nodo más alto (menor y) del clúster inferior más cercano
+    const cen=ringCenters[r2]; let bi=0,bd=Infinity;
+    cen.forEach((cx,ci)=>{ const d=Math.abs(cx-x); if(d<bd){ bd=d; bi=ci; } });
+    const ids=rowNodes[r2].filter(id=>id.startsWith(`${r2}-c${bi}n`));
+    return ids.reduce((b,id)=> nodes[id].y<nodes[b].y?id:b, ids[0]);
+  };
+  for(let r=0;r<ROW_ORDER.length-1;r++){
+    const cen = ringCenters[r];
+    for(let j=0;j<4;j++){
+      const level = j+1;                                      // Nv.1 a Nv.4, izquierda -> derecha
+      const fx = cen[j+1];                                    // clústeres 1,2,3,4 (uno por clúster, consecutivos)
+      const a = nearestByX(rowNodes[r], fx);                  // origen: camino superior (sin cambios)
+      const c = topNodeOf(r+1, fx);                           // destino: nodo SUPERIOR del clúster inferior
+      const id=`IL${r}-${j}`;
+      add(id, (nodes[a].x+nodes[c].x)/2, (nodes[a].y+nodes[c].y)/2, "BLO", {row:r, level, gate:"inter"});
+      edges.push([a,id]); edges.push([id,c]);
+    }
+  }
+
+  const adj={}; Object.keys(nodes).forEach(id=>adj[id]=[]);
+  edges.forEach(([a,b])=>{ if(adj[a]&&adj[b]){ adj[a].push(b); adj[b].push(a); } });
+
+  /* Recambios fijos de nodos de habilidad/técnica/magia por clase, contados de
+     izquierda a derecha entre los nodos del grupo "hab" (TEC/HAB/MBL/MNE). */
+  const HAB_RETYPE={
+    "Dragoon":   {5:"TEC", 6:"HAB"},
+    "Samurai":   {5:"TEC", 6:"HAB"},
+    "Espadachín":{3:"MBL", 5:"TEC"},
+    "Ladrón":    {2:"HAB", 5:"TEC"},
+    "Mago Negro":{6:"MNE", 7:"MNE", 11:"HAB"},
+  };
+  ROW_ORDER.forEach((cls,r)=>{
+    const spec=HAB_RETYPE[cls]; if(!spec) return;
+    const hab=Object.values(nodes).filter(n=>n.row===r && NODE[n.type] && NODE[n.type].grp==="hab")
+                                  .sort((a,b)=>a.x-b.x || a.y-b.y || (a.id<b.id?-1:1));
+    Object.keys(spec).forEach(idx=>{ const n=hab[+idx-1]; if(n){ n.type=spec[idx]; n.grp=NODE[spec[idx]].grp; } });
+  });
+
+  let maxX=0,maxY=0; Object.values(nodes).forEach(n=>{ maxX=Math.max(maxX,n.x); maxY=Math.max(maxY,n.y); });
+  return {nodes, edges, adj, starts, W:maxX+72, H:maxY+60};
+}
+const BOARD = buildBoard();
+
+/* Mapa posicional: la i-ésima habilidad/técnica/magia de cada clase (orden de la
+   tabla) se corresponde con el i-ésimo nodo de grupo "hab" de su fila en el tablero,
+   contado de izquierda a derecha. Clave: `${tabla}|${rama}` -> id de nodo. */
+const ABILITY_NODE = (()=>{
+  const map={}; const rowIdx={}; ROW_ORDER.forEach((c,i)=>rowIdx[c]=i);
+  const habOf = r => Object.values(BOARD.nodes)
+    .filter(n=>n.row===r && NODE[n.type] && NODE[n.type].grp==="hab")
+    .sort((a,b)=>a.x-b.x || a.y-b.y || (a.id<b.id?-1:1)).map(n=>n.id);
+  const link = (cls, table, rows) => { const ns=habOf(rowIdx[cls]); rows.forEach(([rama],i)=>{ if(ns[i]) map[`${table}|${rama}`]=ns[i]; }); };
+  TEC_ORDER.forEach(cls=>link(cls,"tec",TEC_DATA[cls]));
+  link("Mago Blanco","white",WHITE);
+  link("Mago Negro","black",BLACK);
+  link("Mago Azul","blue",BLUE);
+  return map;
+})();
+
+const ABIL_CLASSES = ["Dragoon","Samurai","Espadachín","Tirador","Ladrón","Bardo","Mago Blanco"];
+
+const STORE_KEY = "ff_ficha_v1";
+
+/* ---------- Estado ---------- */
+function blankState(){
+  const s = {
+    nombre:"",sexo:"",raza:"",jugador:"",clase:"",
+    ud:0,xp:0,gill:0,
+    hp_cur:0,mp_cur:0,
+    breakHP:false,breakMP:false,
+    eva_base:0,evam_base:0,arm_base:0,armm_base:0,hab_arma:0,
+    habArmaSel:"",
+    attrs:{}, dvBonus:{}, skills:{}, black:{}, blue:{}, spheres:{}, abil:{}, tec:{}, white:{},
+    equip:{armor:{}, weapons:{}, inv:""}
+  };
+  ATTRS.forEach(a=>s.attrs[a.k]={base:0,bonus:0});
+  ATTRS.forEach(a=>s.dvBonus[a.k]=0);
+  SKILLS.forEach(([n])=>s.skills[n]=0);
+  BLACK.forEach(([rama])=>s.black[rama]=false);
+  BLUE.forEach(([rama])=>s.blue[rama]={on:false,text:"",coef:"",attr:"",mp:""});
+  TEC_ORDER.forEach(c=>TEC_DATA[c].forEach(([rama])=>s.tec[rama]=false));
+  WHITE.forEach(([rama])=>s.white[rama]=false);
+  ARMOR_SLOTS.forEach(k=>s.equip.armor[k]={nombre:"",tipo:"",arm:"",armm:"",eva:"",evam:"",ef:""});
+  WEAPON_SLOTS.forEach(k=>s.equip.weapons[k]={nombre:"",tipo:"",dano:"",danoAttr:"",ef:""});
+  SPHERES.forEach(([n])=>s.spheres[n]=0);
+  ABIL_CLASSES.forEach(c=>{ s.abil[c]=Array.from({length:12},()=>({on:false,n:"",e:""})); });
+  s.turbo={text:"", carga:0, cargaMax:0, rows:Array.from({length:TURBO_ROWS},freeRow)};
+  s.offclass={rows:Array.from({length:OFF_ROWS},freeRow)};
+  s.talents={owned:[]};
+  s.active=[]; s.tover={}; s.zoom=1;
+  s.boardClass="Dragoon";
+  s.pos=BOARD.starts[0];            // posición actual en el tablero (indicador de inicio)
+  s.boardColor="#5fe0ec";          // color del indicador de posición y de las líneas activadas
+  return s;
+}
+let state = loadState();
+sanitizeBoardState();
+
+/* Limpia el progreso del tablero guardado que ya no encaja con la estructura
+   actual (p. ej. tras cambiar el generador): elimina IDs de nodos inexistentes
+   y, si el conjunto activo queda incompleto o desconectado, lo reinicia. Esto
+   evita el fallo al desactivar/reiniciar y el error NODE[tipo] indefinido. */
+function sanitizeBoardState(){
+  if(!state.tover) state.tover={};
+  Object.keys(state.tover).forEach(id=>{ if(!BOARD.nodes[id]) delete state.tover[id]; });
+  const prev = Array.isArray(state.active) ? state.active : [];
+  state.active = prev.filter(id=>BOARD.nodes[id]);   // solo descarta IDs inexistentes (Warp/Maestra pueden dejar nodos sueltos)
+  const cstart = BOARD.starts[classRow()];
+  if(!state.pos || !BOARD.nodes[state.pos]) state.pos = cstart;                 // posición válida
+  else if(!isActive(cstart) && state.active.length===0) state.pos = cstart;     // clase sin empezar -> posición = inicio
+}
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(raw) return Object.assign(blankState(), JSON.parse(raw));
+  }catch(e){}
+  return blankState();
+}
+function saveState(silent){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
+  if(!silent) flashNote("Guardado ✓");
+}
+let noteTimer;
+function flashNote(msg){
+  const n=document.getElementById("savedNote");
+  n.textContent=msg; clearTimeout(noteTimer);
+  noteTimer=setTimeout(()=>n.textContent="",2200);
+}
+
+/* ---------- Cálculos ---------- */
+const num = v => { const n=parseFloat(v); return isNaN(n)?0:n; };
+let SB = {FUE:0,VIT:0,AGI:0,VEL:0,INT:0,VOL:0};
+function nodeType(id){ return state.tover[id] || (BOARD.nodes[id] ? BOARD.nodes[id].type : null); }
+function sphereBonusAll(){
+  const b={FUE:0,VIT:0,AGI:0,VEL:0,INT:0,VOL:0};
+  (state.active||[]).forEach(id=>{ const t=NODE[nodeType(id)]; if(t&&t.grp==="stat") b[t.attr]+=1; });
+  return b;
+}
+const total = k => num(state.attrs[k].base)+num(state.attrs[k].bonus)+(SB[k]||0);
+const rango = k => Math.min(100, total(k)*3+10);
+
+function derivedValue(k){
+  const t=total;
+  switch(k){
+    case "FUE": return t("AGI")+t("VEL")+num(state.eva_base);                 // EVA
+    case "VIT": return t("VOL")+t("INT")+num(state.evam_base);               // EVA M.
+    case "AGI": return num(state.arm_base)*t("VIT")*0.025+num(state.arm_base);// ARM
+    case "VEL": return num(state.armm_base)*t("VOL")*0.025+num(state.armm_base);//ARM M.
+    case "INT": return t("AGI")*4+num(state.hab_arma);                       // PUN
+    case "VOL": return t("INT")*4+100;                                       // PUN M.
+  }
+}
+const fmt = n => Number.isInteger(n)?n:(Math.round(n*100)/100);
+
+/* ---- Coste de MP y fórmulas (4 × ATR) en las tablas de clase ---- */
+const FATTR = "FUE|VIT|AGI|VEL|INT|VOL";
+const FRE = new RegExp("\\((\\d+)\\s*[×x\\*]\\s*("+FATTR+")\\)","g");
+function parseMP(eff){
+  let mp=""; const m=(eff||"").match(/\(Coste\s+(\d+)\s*MP\)/i); if(m) mp=m[1];
+  const text=(eff||"").replace(/\s*\(Coste\s+\d+\s*MP\)\.?/ig," ").replace(/\s{2,}/g," ").trim();
+  return {text, mp};
+}
+function formulaHTML(text){
+  return (text||"").replace(FRE,(m,c,a)=>`${m}<span class="fcalc" data-coef="${c}" data-attr="${a}"></span>`);
+}
+function effectCell(eff){ const {text,mp}=parseMP(eff); return {effHTML:formulaHTML(text), mp}; }
+function mpCell(mp){ return `<td class="mp-cell">${mp?`<b>${mp}</b>`:'—'}</td>`; }
+/* Recalcula todos los resultados de fórmula (tablas de clase + daño de Mago Azul). */
+function updateFormulas(){
+  document.querySelectorAll(".fcalc[data-attr]").forEach(el=>{
+    el.textContent=" = "+fmt(num(el.dataset.coef)*total(el.dataset.attr));
+  });
+  document.querySelectorAll("[data-blue-dmg]").forEach(el=>{
+    const b=(state.blue&&state.blue[el.dataset.blueDmg])||{};
+    el.textContent=(b.coef!==""&&b.coef!=null&&b.attr)?(" = "+fmt(num(b.coef)*total(b.attr))):"";
+  });
+  document.querySelectorAll("[data-turbo-dmg]").forEach(el=>{
+    const r=(state.turbo&&state.turbo.rows&&state.turbo.rows[+el.dataset.turboDmg])||{};
+    el.textContent=(r.coef!==""&&r.coef!=null&&r.attr)?(" = "+fmt(num(r.coef)*total(r.attr))):"";
+  });
+  document.querySelectorAll("[data-off-dmg]").forEach(el=>{
+    const r=(state.offclass&&state.offclass.rows&&state.offclass.rows[+el.dataset.offDmg])||{};
+    el.textContent=(r.coef!==""&&r.coef!=null&&r.attr)?(" = "+fmt(num(r.coef)*total(r.attr))):"";
+  });
+}
+
+/* ---------- Render ---------- */
+function renderAttrs(){
+  const body=document.getElementById("attrBody");
+  body.innerHTML="";
+  ATTRS.forEach(a=>{
+    const d=DERIVED[a.k];
+    let compHtml="";
+    if(d.comp==="hab_arma"){
+      const opts=['<option value="">— Hab. arma —</option>']
+        .concat(HAB_ARMA_SKILLS.map(s=>`<option value="${s}"${state.habArmaSel===s?" selected":""}>${s}</option>`))
+        .join("");
+      compHtml=`<select style="margin-top:4px;width:70%;font-size:.475rem;padding:6px 8px" data-habarma-sel aria-label="Habilidad de arma">${opts}</select>
+        <input class="num" readonly style="margin-top:4px;width:96px" type="number" data-compdisp="hab_arma" value="${fmt(num(state.hab_arma))}" title="Valor de la habilidad seleccionada">`;
+    } else if(d.comp){
+      compHtml=`<input class="num" readonly style="margin-top:4px;width:96px" type="number" data-compdisp="${d.comp}" value="${fmt(num(state[d.comp]))}" title="Suma automática desde Equipo">`;
+    }
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td>${a.k}<div class="stat-name" style="text-transform:none;font-family:'Inter'">${a.name}</div></td>
+      <td class="c"><input class="num" type="number" data-attr="${a.k}" data-f="base" value="${state.attrs[a.k].base}"></td>
+      <td class="c"><input class="num" type="number" data-attr="${a.k}" data-f="bonus" value="${state.attrs[a.k].bonus}"></td>
+      <td class="c"><span class="ro" id="tot-${a.k}"></span><span class="esf" id="esf-${a.k}"></span></td>
+      <td class="c"><span class="ro" id="rng-${a.k}"></span></td>
+      <td class="c"><span class="ro" id="def-${a.k}"></span></td>
+      <td>
+        <div class="stat-name">${d.label}</div>
+        ${compHtml}
+      </td>
+      <td class="c"><input class="num" type="number" data-dvbonus="${a.k}" value="${num(state.dvBonus&&state.dvBonus[a.k])}" style="width:72px"></td>
+      <td class="c"><span class="stat-val" id="dv-${a.k}"></span></td>`;
+    body.appendChild(tr);
+  });
+  renderFormulas();
+}
+
+/* Lista de fórmulas mostrada como información al final de la tabla de atributos */
+function renderFormulas(){
+  const box=document.getElementById("attrFormulas"); if(!box) return;
+  const items=[
+    ["Total","Base + Bonus"],
+    ["Rango","Total × 3 + 10 (máx. 100)"],
+    ["Default","Rango ÷ 2"],
+  ];
+  ATTRS.forEach(a=>{ const d=DERIVED[a.k]; items.push([d.label, d.desc]); });
+  items.push(["Valor","Stat derivado + Bonus"]);
+  box.innerHTML = `<div class="ftit">Fórmulas</div><ul>` +
+    items.map(([k,v])=>`<li><b>${k}</b><span class="eq">= ${v}</span></li>`).join("") +
+    `</ul>`;
+}
+
+function renderSkills(){
+  const wrap=document.getElementById("skillCols");
+  wrap.innerHTML="";
+  SKILLS.forEach(([n,gov])=>{
+    const row=document.createElement("div");
+    row.className="skill-row";
+    row.style.breakInside="avoid";
+    const def = gov
+      ? `<span class="sk-def" data-skgov="${gov}" style="color:${ATTR_COLOR[gov]||'var(--ink-dim)'}" title="Default de ${gov} (tabla de atributos)">${fmt(rango(gov)/2)}</span>`
+      : "";
+    row.innerHTML=`<span class="sk-name">${n} ${gov?`<small>(${gov})</small>`:""}</span>
+      ${def}<input class="num" type="number" min="0" data-skill="${n}" value="${state.skills[n]}" aria-label="Rango ${n}">`;
+    wrap.appendChild(row);
+  });
+  refreshSkillXP();
+}
+function refreshSkillXP(){
+  const el=document.getElementById("skillXPval"); if(el) el.textContent=num(state.xp);
+  const el2=document.getElementById("talentXPval"); if(el2) el2.textContent=num(state.xp);
+}
+
+function renderBlack(){
+  const body=document.getElementById("blackBody");
+  body.innerHTML="";
+  BLACK.forEach(([rama,name,eff])=>{
+    const {effHTML,mp}=effectCell(eff);
+    const on=isAbilityActive("black", rama);
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td class="c"><input class="chk" type="checkbox" data-black="${rama}" disabled ${on?"checked":""} title="Se activa al activar su nodo en el tablero"></td>
+      <td><span class="rama">${rama}</span></td>
+      <td><span class="sp-name">${name}</span></td>
+      <td class="effect">${effHTML}</td>
+      ${mpCell(mp)}`;
+    body.appendChild(tr);
+  });
+  updateFormulas();
+}
+
+function ensureBlue(){
+  if(!state.blue) state.blue={};
+  BLUE.forEach(([rama,,fixed])=>{
+    let b=state.blue[rama];
+    if(!b||typeof b!=="object"){ b=state.blue[rama]={on:false,text:"",coef:"",attr:"",mp:""}; }
+    if(b.on==null)b.on=false; if(b.text==null)b.text=""; if(b.coef==null)b.coef=""; if(b.attr==null)b.attr=""; if(b.mp==null)b.mp="";
+    if(fixed){ b.coef=""; b.attr=""; b.mp=10; }   // Aprender: coste fijo 10, sin daño
+  });
+}
+function renderBlue(){
+  ensureBlue();
+  const body=document.getElementById("blueBody");
+  body.innerHTML="";
+  const esc=s=>(s||"").replace(/"/g,"&quot;");
+  const attrOpts=sel=>['<option value="">—</option>'].concat(ATTRS.map(a=>`<option value="${a.k}"${sel===a.k?" selected":""}>${a.k}</option>`)).join("");
+  BLUE.forEach(([rama,name,fixed])=>{
+    const v=state.blue[rama];
+    const desc = fixed
+      ? `<span class="sp-name" style="color:var(--mp2)">${name}</span> — copia habilidades de monstruos 1 turno.`
+      : `<input class="learn" data-blue-text="${rama}" value="${esc(v.text)}" placeholder="${name} — habilidad aprendida…">`;
+    const dmgCell = fixed
+      ? `<td class="blue-dmg-cell" style="color:var(--ink-dim);text-align:center">—</td>`
+      : `<td class="blue-dmg-cell"><input class="num dmgnum" type="number" min="0" data-blue-coef="${rama}" value="${esc(String(v.coef))}" placeholder="nº" style="width:48px"> × <select data-blue-attr="${rama}" style="width:64px;font-size:.7rem;padding:4px">${attrOpts(v.attr)}</select><span class="fcalc" data-blue-dmg="${rama}"></span></td>`;
+    const mpCellHtml = fixed
+      ? `<td class="mp-cell"><b>10</b></td>`
+      : `<td class="mp-cell"><input class="num" type="number" min="0" data-blue-mp="${rama}" value="${esc(String(v.mp))}" placeholder="MP" style="width:48px"></td>`;
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td class="c"><input class="chk" type="checkbox" data-blue-on="${rama}" disabled ${isAbilityActive("blue",rama)?"checked":""} title="Se activa al activar su nodo en el tablero"></td>
+      <td class="blue-slot"><span class="rama">${rama}</span></td>
+      <td class="blue-slot">${desc}</td>
+      ${dmgCell}
+      ${mpCellHtml}`;
+    body.appendChild(tr);
+  });
+  updateFormulas();
+}
+
+/* ---- Habilidades libres: Turbo y Offclass (estilo Mago Azul, sin tablero) ---- */
+function ensureFree(){
+  if(!state.turbo || typeof state.turbo!=="object") state.turbo={text:"",rows:[]};
+  if(typeof state.turbo.text!=="string") state.turbo.text="";
+  if(state.turbo.carga==null) state.turbo.carga=0;
+  if(state.turbo.cargaMax==null) state.turbo.cargaMax=0;
+  if(!Array.isArray(state.turbo.rows)) state.turbo.rows=[];
+  while(state.turbo.rows.length<TURBO_ROWS) state.turbo.rows.push(freeRow());
+  if(!state.offclass || typeof state.offclass!=="object") state.offclass={rows:[]};
+  if(!Array.isArray(state.offclass.rows)) state.offclass.rows=[];
+  while(state.offclass.rows.length<OFF_ROWS) state.offclass.rows.push(freeRow());
+  const fix=r=>{ if(r.on==null)r.on=false; if(r.name==null)r.name=""; if(r.text==null)r.text=""; if(r.coef==null)r.coef=""; if(r.attr==null)r.attr=""; if(r.mp==null)r.mp=""; };
+  state.turbo.rows.forEach(fix); state.offclass.rows.forEach(fix);
+}
+function renderFreeTable(kind, rows, bodyId){
+  const body=document.getElementById(bodyId); if(!body) return;
+  body.innerHTML="";
+  const esc=s=>(s==null?"":String(s)).replace(/"/g,"&quot;");
+  const attrOpts=sel=>['<option value="">—</option>'].concat(ATTRS.map(a=>`<option value="${a.k}"${sel===a.k?" selected":""}>${a.k}</option>`)).join("");
+  rows.forEach((v,i)=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td class="c"><input class="chk" type="checkbox" data-${kind}-on="${i}" ${v.on?"checked":""} title="Activar a mano (no depende del tablero)"></td>
+      <td class="blue-slot"><input class="learn" data-${kind}-name="${i}" value="${esc(v.name)}" placeholder="Nombre…"></td>
+      <td class="blue-slot"><input class="learn" data-${kind}-text="${i}" value="${esc(v.text)}" placeholder="Habilidad / descripción…"></td>
+      <td class="blue-dmg-cell"><input class="num dmgnum" type="number" min="0" data-${kind}-coef="${i}" value="${esc(String(v.coef))}" placeholder="nº" style="width:48px"> × <select data-${kind}-attr="${i}" style="width:64px;font-size:.7rem;padding:4px">${attrOpts(v.attr)}</select><span class="fcalc" data-${kind}-dmg="${i}"></span></td>
+      <td class="mp-cell"><input class="num" type="number" min="0" data-${kind}-mp="${i}" value="${esc(String(v.mp))}" placeholder="MP" style="width:48px"></td>`;
+    body.appendChild(tr);
+  });
+}
+function renderFree(){
+  ensureFree();
+  const tb=document.getElementById("turboBox"); if(tb) tb.value=state.turbo.text||"";
+  const cc=document.getElementById("turboCargaCur"); if(cc) cc.value=state.turbo.carga;
+  const cm=document.getElementById("turboCargaMax"); if(cm) cm.value=state.turbo.cargaMax;
+  renderFreeTable("turbo", state.turbo.rows, "turboBody");
+  renderFreeTable("off", state.offclass.rows, "offBody");
+  updateTurboGlow();
+  updateFormulas();
+}
+/* Carga de Turbo: ilumina la pestaña de naranja al alcanzar la carga máxima */
+function updateTurboGlow(){
+  ensureFree();
+  const cur=num(state.turbo.carga), max=num(state.turbo.cargaMax);
+  const ready = max>0 && cur>=max;
+  const btn=document.querySelector('nav.tabs button[data-tab="turbo"]');
+  if(btn) btn.classList.toggle("charged", ready);
+  const box=document.getElementById("turboCargaBox");
+  if(box) box.classList.toggle("ready", ready);
+  const st=document.getElementById("turboCargaState");
+  if(st) st.textContent = max>0 ? (ready ? "¡Turbo listo!" : "Cargando… "+cur+"/"+max) : "Define la carga máxima";
+}
+
+/* ---------- Talentos ---------- */
+function ensureTalents(){
+  if(!state.talents || typeof state.talents!=="object") state.talents={owned:[]};
+  if(!Array.isArray(state.talents.owned)) state.talents.owned=[];
+}
+function hasTalent(id){ ensureTalents(); return state.talents.owned.some(o=>o.id===id); }
+function talentInstances(id){ ensureTalents(); return state.talents.owned.filter(o=>o.id===id); }
+function escHTML(s){ return (s==null?"":String(s)).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function renderTalents(){
+  ensureTalents();
+  const wrap=document.getElementById("talentGrid"); if(!wrap) return;
+  refreshSkillXP();
+  wrap.innerHTML="";
+  TALENTS.forEach(def=>{
+    const insts=talentInstances(def.id);
+    const ownedSingle = !def.repeatable && insts.length>0;
+    const card=document.createElement("div");
+    card.className="talent-card"+(ownedSingle?" owned":"");
+    const costLabel = (def.spec && def.spec.type==="tier") ? "5–20 XP" : def.cost+" XP";
+    let h=`<h4>${escHTML(def.name)} <span class="t-cost">${costLabel}</span>${def.repeatable?'<span class="t-rep">Repetible</span>':''}</h4>`;
+    h+=`<p class="t-desc">${escHTML(def.desc)}</p>`;
+    let prereqMet=true;
+    if(def.requires){ prereqMet=hasTalent(def.requires); h+=`<div class="t-req${prereqMet?' met':''}">Requiere ${escHTML(def.requiresLabel)} ${prereqMet?'✓':'✗'}</div>`; }
+    if(insts.length){
+      h+=`<div class="talent-owned-list">`+insts.map(o=>`<span class="talent-chip"><span class="tc-check">✓</span> ${o.spec?escHTML(o.spec):'Adquirido'}</span>`).join("")+`</div>`;
+    }
+    const showControls = def.repeatable || insts.length===0;
+    if(showControls){
+      let picker="", lockMsg="";
+      if(def.spec){
+        if(def.spec.type==="list"){
+          const base = def.spec.optionsFrom
+            ? [...new Set(talentInstances(def.spec.optionsFrom).map(o=>o.spec).filter(Boolean))]
+            : def.spec.options;
+          const taken=insts.map(o=>o.spec);
+          const opts=base.filter(o=>!taken.includes(o));
+          if(base.length===0) lockMsg=def.spec.emptyMsg || "Sin opciones disponibles";
+          else if(opts.length===0) lockMsg="Todas las especificaciones adquiridas";
+          else picker=`<select data-talent-spec="${def.id}"><option value="">— ${escHTML(def.spec.label)} —</option>`+opts.map(o=>`<option value="${escHTML(o)}">${escHTML(o)}</option>`).join("")+`</select>`;
+        } else if(def.spec.type==="tier"){
+          picker=`<select data-talent-spec="${def.id}">`+def.spec.options.map((o,i)=>`<option value="${i}">${escHTML(o.label)} · ${o.cost} XP</option>`).join("")+`</select>`;
+        } else {
+          picker=`<input class="t-spec" data-talent-spec="${def.id}" placeholder="${escHTML(def.spec.label)}…">`;
+        }
+      }
+      if(lockMsg){
+        h+=`<div class="t-controls"><span class="talent-locked">${escHTML(lockMsg)}</span></div>`;
+      } else {
+        const btnLabel=(def.repeatable && insts.length)?"Añadir otro":"Adquirir";
+        const dis=prereqMet?"":" disabled";
+        h+=`<div class="t-controls">${picker}<button class="t-buy" data-talent-buy="${def.id}"${dis}>${btnLabel}</button></div>`;
+      }
+    }
+    card.innerHTML=h;
+    wrap.appendChild(card);
+  });
+}
+function buyTalent(id){
+  const def=TALENTS.find(t=>t.id===id); if(!def) return;
+  ensureTalents();
+  if(def.requires && !hasTalent(def.requires)){ flashNote("Requiere "+def.requiresLabel); return; }
+  if(!def.repeatable && hasTalent(id)){ flashNote("Ya adquirido"); return; }
+  let spec=null, cost=def.cost;
+  if(def.spec){
+    const sel=document.querySelector(`[data-talent-spec="${id}"]`);
+    if(def.spec.type==="tier"){
+      const idx=sel?+sel.value:0, opt=def.spec.options[idx];
+      if(!opt){ flashNote("Elige un nivel"); return; }
+      spec=opt.label; cost=opt.cost;
+    } else if(def.spec.type==="list"){
+      spec=sel?sel.value:"";
+      if(!spec){ flashNote("Elige "+def.spec.label.toLowerCase()); return; }
+      if(def.spec.optionsFrom){
+        const allowed=new Set(talentInstances(def.spec.optionsFrom).map(o=>o.spec));
+        if(!allowed.has(spec)){ flashNote("Ese tipo debe haberse elegido antes en "+(def.requiresLabel||def.spec.optionsFrom)); return; }
+      }
+      if(def.repeatable && talentInstances(id).some(o=>o.spec===spec)){ flashNote("Ya tienes esa especificación"); return; }
+    } else {
+      spec=sel?sel.value.trim():"";
+    }
+  }
+  const avail=Math.max(0,num(state.xp));
+  if(cost>avail){ flashNote(`XP insuficiente (necesitas ${cost}, tienes ${avail})`); return; }
+  const especif = spec ? ` (${spec})` : "";
+  const ok=window.confirm(`¿Adquirir el talento «${def.name}»${especif} por ${cost} XP?\n\nLos talentos no se pueden reembolsar ni desactivar.`);
+  if(!ok) return;
+  state.xp=avail-cost;
+  state.talents.owned.push({id, spec:spec||null});
+  const xpEl=document.querySelector('[data-id="xp"]'); if(xpEl) xpEl.value=state.xp;
+  refreshSkillXP();
+  saveState(true);
+  renderTalents();
+  recompute();
+  flashNote(`«${def.name}» adquirido`);
+}
+
+function ensureAbil(){
+  if(!state.abil) state.abil={};
+  ABIL_CLASSES.forEach(c=>{
+    if(!Array.isArray(state.abil[c])) state.abil[c]=[];
+    while(state.abil[c].length<12) state.abil[c].push({on:false,n:"",e:""});
+  });
+}
+function renderAbility(cls, tbodyId){
+  const body=document.getElementById(tbodyId); if(!body) return;
+  body.innerHTML="";
+  const esc=s=>(s||"").replace(/"/g,"&quot;");
+  state.abil[cls].forEach((row,i)=>{
+    const key=cls+"|"+i;
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td class="c"><input class="chk" type="checkbox" data-abil-on="${key}" ${row.on?"checked":""}></td>
+      <td><span class="rama">${cls} ${i+1}</span></td>
+      <td class="blue-slot"><input data-abil-n="${key}" value="${esc(row.n)}" placeholder="Nombre…"></td>
+      <td class="blue-slot"><input data-abil-e="${key}" value="${esc(row.e)}" placeholder="Efecto…"></td>`;
+    body.appendChild(tr);
+  });
+}
+function renderRefRows(data, mapName){
+  const map = state[mapName] || (state[mapName]={});
+  return data.map(([rama,name,eff])=>{
+    const {effHTML,mp}=effectCell(eff);
+    const on=isAbilityActive(mapName, rama);
+    return `
+    <tr>
+      <td class="c"><input class="chk" type="checkbox" data-ref="${mapName}|${rama}" disabled ${on?"checked":""} title="Se activa al activar su nodo en el tablero"></td>
+      <td><span class="rama">${rama}</span></td>
+      <td><span class="sp-name">${name}</span></td>
+      <td class="effect">${effHTML}</td>
+      ${mpCell(mp)}
+    </tr>`;}).join("");
+}
+const CLASS_DESC = {
+  "Dragoon":"Alcance aéreo",
+  "Samurai":"Debuff y aggro",
+  "Espadachín":"Control de la batalla",
+  "Tirador":"Estados alterados",
+  "Ladrón":"Items especiales",
+  "Bardo":"Habilidades de apoyo",
+};
+function renderTec(){
+  const wrap=document.getElementById("tecAll"); if(!wrap) return;
+  wrap.innerHTML = TEC_ORDER.map(cls=>`
+    <div class="magic-head tec"><h3>${cls}</h3><span class="pill">${CLASS_DESC[cls]||"Técnicas de clase"}</span></div>
+    <div class="tbl-scroll">
+      <table class="spell-tbl">
+        <thead><tr><th style="width:42px">Act.</th><th>Rama</th><th>Nombre</th><th>Efecto</th><th style="width:54px">MP</th></tr></thead>
+        <tbody>${renderRefRows(TEC_DATA[cls],"tec")}</tbody>
+      </table>
+    </div>`).join("");
+  updateFormulas();
+}
+function renderWhite(){
+  const body=document.getElementById("whiteBody"); if(!body) return;
+  body.innerHTML = renderRefRows(WHITE,"white");
+  updateFormulas();
+}
+function ensureEquip(){
+  if(!state.equip) state.equip={armor:{},weapons:{},inv:""};
+  if(!state.equip.armor) state.equip.armor={};
+  if(!state.equip.weapons) state.equip.weapons={};
+  if(typeof state.equip.inv!=="string") state.equip.inv="";
+  ARMOR_SLOTS.forEach(k=>{ if(!state.equip.armor[k]) state.equip.armor[k]={nombre:"",tipo:"",arm:"",armm:"",eva:"",evam:"",ef:""};
+    else if(state.equip.armor[k].nombre==null) state.equip.armor[k].nombre=""; });
+  WEAPON_SLOTS.forEach(k=>{ if(!state.equip.weapons[k]) state.equip.weapons[k]={nombre:"",tipo:"",dano:"",danoAttr:"",ef:""};
+    else { const w=state.equip.weapons[k]; if(w.nombre==null) w.nombre=""; if(w.danoAttr==null) w.danoAttr=""; } });
+  // mantener estrictamente numéricos los campos de stats / daño
+  const clean=(o,fields)=>fields.forEach(([f,,isNum])=>{ if(isNum){ const v=o[f]; if(v===""||v==null){o[f]="";} else { const x=parseFloat(v); o[f]=isNaN(x)?"":x; } } });
+  ARMOR_SLOTS.forEach(k=>clean(state.equip.armor[k],ARMOR_FIELDS));
+  WEAPON_SLOTS.forEach(k=>clean(state.equip.weapons[k],WEAPON_FIELDS));
+}
+function renderEquip(){
+  ensureEquip();
+  const esc=s=>(s==null?"":String(s)).replace(/"/g,"&quot;");
+  const cell=(grp,slot,f,val,isNum)=> isNum
+    ? `<td class="c"><input class="num" type="number" inputmode="decimal" step="any" data-equip="${grp}|${slot}|${f}" value="${esc(val)}"></td>`
+    : `<td><input type="text" data-equip="${grp}|${slot}|${f}" value="${esc(val)}"></td>`;
+  const armor=document.getElementById("armorBody");
+  if(armor){
+    armor.innerHTML="";
+    ARMOR_SLOTS.forEach(slot=>{
+      const v=state.equip.armor[slot];
+      const cells=ARMOR_FIELDS.map(([f,,isNum])=>cell("armor",slot,f,v[f],isNum)).join("");
+      armor.insertAdjacentHTML("beforeend",`<tr><td>${slot}</td>${cells}</tr>`);
+    });
+  }
+  const wpn=document.getElementById("weaponBody");
+  if(wpn){
+    wpn.innerHTML="";
+    WEAPON_SLOTS.forEach(slot=>{
+      const v=state.equip.weapons[slot];
+      let cells="";
+      WEAPON_FIELDS.forEach(([f,,isNum])=>{
+        cells+=cell("weapons",slot,f,v[f],isNum);
+        if(f==="dano"){
+          const opts=['<option value="">—</option>']
+            .concat(ATTRS.map(a=>`<option value="${a.k}"${v.danoAttr===a.k?" selected":""}>${a.k}</option>`)).join("");
+          cells+=`<td class="c"><select data-wpnattr="${slot}" aria-label="Atributo de daño">${opts}</select></td>`;
+          cells+=`<td class="c"><span class="ro wpn-dmg" data-wpndmg="${slot}">—</span></td>`;
+        }
+      });
+      wpn.insertAdjacentHTML("beforeend",`<tr><td>${slot}</td>${cells}</tr>`);
+    });
+  }
+  const inv=document.getElementById("invBox");
+  if(inv) inv.value=state.equip.inv||"";
+}
+
+function renderSpheres(){
+  const grid=document.getElementById("sphereGrid");
+  grid.innerHTML="";
+  SPHERES.forEach(([n,color])=>{
+    if(state.spheres[n]==null) state.spheres[n]=0;   // inicializa esferas nuevas en fichas guardadas
+    const cell=document.createElement("div");
+    cell.className="sphere";
+    cell.innerHTML=`
+      <span class="dot" style="background:radial-gradient(circle at 32% 30%, #fff8, ${color})"></span>
+      <span class="nm">${n}</span>
+      <span class="stepper">
+        <button data-sph-dec="${n}" aria-label="menos">−</button>
+        <input class="num" type="number" data-sphere="${n}" value="${state.spheres[n]}">
+        <button data-sph-inc="${n}" aria-label="más">+</button>
+      </span>`;
+    grid.appendChild(cell);
+  });
+  if(typeof updateSphereButtons==="function") updateSphereButtons();
+}
+
+/* suma una columna de la tabla de armadura, tratando casillas vacías/nulas como 0 */
+function armorSum(field){
+  ensureEquip();
+  return ARMOR_SLOTS.reduce((acc,slot)=>acc+num(state.equip.armor[slot][field]),0);
+}
+/* rellena los componentes del stat derivado desde Equipo y la Hab. arma desde Habilidades */
+function syncDerivedComponents(){
+  ensureEquip();
+  for(const comp in COMP_FROM_ARMOR){ state[comp]=armorSum(COMP_FROM_ARMOR[comp]); }
+  state.hab_arma = state.habArmaSel ? num(state.skills[state.habArmaSel]) : 0;
+  document.querySelectorAll("[data-compdisp]").forEach(el=>{
+    const c=el.dataset.compdisp; el.value=fmt(num(state[c]));
+  });
+  const sel=document.querySelector("[data-habarma-sel]");
+  if(sel) sel.value=state.habArmaSel||"";
+}
+
+/* calcula y muestra el daño total de cada arma: Daño × Total(atributo) */
+function updateWeaponDamage(){
+  ensureEquip();
+  document.querySelectorAll("[data-wpndmg]").forEach(el=>{
+    const slot=el.dataset.wpndmg, w=state.equip.weapons[slot];
+    if(w && w.danoAttr && ATTRS.some(a=>a.k===w.danoAttr)){
+      el.textContent = fmt(num(w.dano)*total(w.danoAttr));
+    } else {
+      el.textContent = "—";
+    }
+  });
+}
+
+/* recalcula y pinta todos los valores derivados / vitales */
+function recompute(){
+  syncDerivedComponents();
+  SB = sphereBonusAll();          // bonificación de atributos por nodos activados del tablero
+  syncAbilitiesFromBoard();       // activación de habilidades/técnicas/magias según el tablero
+  refreshAbilityChecks();         // refleja esas activaciones en las casillas (solo lectura)
+  ATTRS.forEach(a=>{
+    const t=total(a.k), r=rango(a.k);
+    const set=(id,v)=>{const el=document.getElementById(id); if(el) el.textContent=v;};
+    set("tot-"+a.k, t);
+    set("rng-"+a.k, r);
+    set("def-"+a.k, fmt(r/2));
+    set("dv-"+a.k, fmt(derivedValue(a.k) + num(state.dvBonus && state.dvBonus[a.k])));
+    const ee=document.getElementById("esf-"+a.k);
+    if(ee){ ee.textContent = SB[a.k] ? ` +${SB[a.k]}` : ""; ee.title = SB[a.k] ? `+${SB[a.k]} por nodos activados del tablero` : ""; }
+  });
+  // Default de las habilidades: copia el Default ya mostrado del atributo que las gobierna
+  document.querySelectorAll("[data-skgov]").forEach(el=>{
+    const src=document.getElementById("def-"+el.dataset.skgov);
+    if(src) el.textContent=src.textContent;
+  });
+  updateWeaponDamage();
+  const hpMult = 36 + (hasTalent("endurecido") ? 4 : 0);
+  const mpMult = 4  + (hasTalent("almapura")  ? 2 : 0);
+  let hpMax=total("VIT")*hpMult, mpMax=total("INT")*mpMult;
+  if(!state.breakHP) hpMax=Math.min(hpMax,999);   // límite 999 HP salvo Romper límite
+  if(!state.breakMP) mpMax=Math.min(mpMax,99);    // límite 99 MP salvo Romper límite
+  const hpF=document.getElementById("hpFormula"); if(hpF) hpF.textContent = hasTalent("endurecido") ? "VIT × (36+4)" : "VIT × 36";
+  const mpF=document.getElementById("mpFormula"); if(mpF) mpF.textContent = hasTalent("almapura") ? "INT × (4+2)" : "INT × 4";
+  document.getElementById("hpMax").textContent=hpMax;
+  document.getElementById("mpMax").textContent=mpMax;
+  const hpc=Math.min(num(state.hp_cur),hpMax||num(state.hp_cur));
+  const mpc=Math.min(num(state.mp_cur),mpMax||num(state.mp_cur));
+  document.getElementById("hpBar").style.width=(hpMax?Math.max(0,Math.min(100,hpc/hpMax*100)):0)+"%";
+  document.getElementById("mpBar").style.width=(mpMax?Math.max(0,Math.min(100,mpc/mpMax*100)):0)+"%";
+  updateFormulas();   // refresca los cálculos (4 × ATR) y el daño de Mago Azul al cambiar atributos
+}
+
+/* refleja state en los inputs simples al cargar */
+function hydrateSimple(){
+  document.querySelectorAll("[data-id]").forEach(el=>el.value=state[el.dataset.id]??"");
+  document.querySelectorAll("[data-vital]").forEach(el=>el.value=state[el.dataset.vital]??0);
+  document.querySelectorAll("[data-break]").forEach(el=>el.checked=!!state[el.dataset.break==="mp"?"breakMP":"breakHP"]);
+}
+
+/* ---------- Eventos ---------- */
+document.addEventListener("input", e=>{
+  const t=e.target;
+  if(t.dataset.id!==undefined){ state[t.dataset.id]=t.type==="number"?num(t.value):t.value;
+    if(t.dataset.id==="ud"){ const u=document.getElementById("boardUD"); if(u) u.textContent=num(state.ud)+" UD"; renderBoard(); }
+    if(t.dataset.id==="xp"){ refreshSkillXP(); } }
+  else if(t.dataset.vital){ state[t.dataset.vital]=num(t.value); recompute(); }
+  else if(t.dataset.attr){ state.attrs[t.dataset.attr][t.dataset.f]=num(t.value); recompute(); }
+  else if(t.dataset.dvbonus){ if(!state.dvBonus) state.dvBonus={}; state.dvBonus[t.dataset.dvbonus]=num(t.value); recompute(); }
+  else if(t.dataset.comp){ state[t.dataset.comp]=num(t.value); recompute(); }
+  else if(t.dataset.skill){
+    const key=t.dataset.skill, oldVal=Math.max(0,Math.round(num(state.skills[key])));
+    let newVal=Math.max(0,Math.round(num(t.value)));
+    let delta=newVal-oldVal;                       // + gasta XP, - reembolsa XP
+    if(delta>0){
+      const avail=Math.max(0,num(state.xp));
+      if(delta>avail){ delta=avail; newVal=oldVal+delta; t.value=newVal; flashNote("XP insuficiente"); }
+    }
+    state.skills[key]=newVal;
+    state.xp=num(state.xp)-delta;                   // descuenta o reembolsa la experiencia
+    const xpEl=document.querySelector('[data-id="xp"]'); if(xpEl) xpEl.value=state.xp;
+    refreshSkillXP();
+    recompute();
+  }
+  else if(t.dataset.sphere){ state.spheres[t.dataset.sphere]=Math.max(0,Math.round(num(t.value))); if(typeof updateSphereButtons==="function") updateSphereButtons(); }
+  else if(t.dataset.blueText){ ensureBlue(); state.blue[t.dataset.blueText].text=t.value; }
+  else if(t.dataset.blueCoef){ ensureBlue(); state.blue[t.dataset.blueCoef].coef=t.value; updateFormulas(); }
+  else if(t.dataset.blueMp){ ensureBlue(); state.blue[t.dataset.blueMp].mp=t.value; }
+  else if(t.dataset.abilN){ const p=t.dataset.abilN.split("|"); state.abil[p[0]][+p[1]].n=t.value; }
+  else if(t.dataset.abilE){ const p=t.dataset.abilE.split("|"); state.abil[p[0]][+p[1]].e=t.value; }
+  else if(t.dataset.equip){ const [g,slot,f]=t.dataset.equip.split("|"); ensureEquip(); state.equip[g][slot][f]=(t.type==="number")?(t.value===""?"":num(t.value)):t.value; recompute(); }
+  else if(t.id==="invBox"){ ensureEquip(); state.equip.inv=t.value; }
+  else if(t.id==="turboBox"){ ensureFree(); state.turbo.text=t.value; }
+  else if(t.dataset.turboCarga!==undefined){ ensureFree(); const k=(t.dataset.turboCarga==="max")?"cargaMax":"carga"; state.turbo[k]=(t.value===""?"":num(t.value)); updateTurboGlow(); }
+  else if(t.dataset.turboName!==undefined){ ensureFree(); state.turbo.rows[+t.dataset.turboName].name=t.value; }
+  else if(t.dataset.turboText!==undefined){ ensureFree(); state.turbo.rows[+t.dataset.turboText].text=t.value; }
+  else if(t.dataset.turboCoef!==undefined){ ensureFree(); state.turbo.rows[+t.dataset.turboCoef].coef=t.value; updateFormulas(); }
+  else if(t.dataset.turboMp!==undefined){ ensureFree(); state.turbo.rows[+t.dataset.turboMp].mp=t.value; }
+  else if(t.dataset.offName!==undefined){ ensureFree(); state.offclass.rows[+t.dataset.offName].name=t.value; }
+  else if(t.dataset.offText!==undefined){ ensureFree(); state.offclass.rows[+t.dataset.offText].text=t.value; }
+  else if(t.dataset.offCoef!==undefined){ ensureFree(); state.offclass.rows[+t.dataset.offCoef].coef=t.value; updateFormulas(); }
+  else if(t.dataset.offMp!==undefined){ ensureFree(); state.offclass.rows[+t.dataset.offMp].mp=t.value; }
+  else return;
+  saveState(true);
+});
+document.addEventListener("change", e=>{
+  const t=e.target;
+  if(t.dataset.black!==undefined){ state.black[t.dataset.black]=t.checked; saveState(true); }
+  else if(t.dataset.break!==undefined){ state[t.dataset.break==="mp"?"breakMP":"breakHP"]=t.checked; recompute(); saveState(true); }
+  else if(t.dataset.blueOn!==undefined){ ensureBlue(); state.blue[t.dataset.blueOn].on=t.checked; saveState(true); }
+  else if(t.dataset.blueAttr!==undefined){ ensureBlue(); state.blue[t.dataset.blueAttr].attr=t.value; updateFormulas(); saveState(true); }
+  else if(t.dataset.abilOn!==undefined){ const p=t.dataset.abilOn.split("|"); state.abil[p[0]][+p[1]].on=t.checked; saveState(true); }
+  else if(t.dataset.ref!==undefined){ const [m,r]=t.dataset.ref.split("|"); (state[m]||(state[m]={}))[r]=t.checked; saveState(true); }
+  else if(t.dataset.habarmaSel!==undefined){ state.habArmaSel=t.value; recompute(); saveState(true); }
+  else if(t.dataset.wpnattr!==undefined){ ensureEquip(); state.equip.weapons[t.dataset.wpnattr].danoAttr=t.value; recompute(); saveState(true); }
+  else if(t.dataset.turboOn!==undefined){ ensureFree(); state.turbo.rows[+t.dataset.turboOn].on=t.checked; saveState(true); }
+  else if(t.dataset.turboAttr!==undefined){ ensureFree(); state.turbo.rows[+t.dataset.turboAttr].attr=t.value; updateFormulas(); saveState(true); }
+  else if(t.dataset.offOn!==undefined){ ensureFree(); state.offclass.rows[+t.dataset.offOn].on=t.checked; saveState(true); }
+  else if(t.dataset.offAttr!==undefined){ ensureFree(); state.offclass.rows[+t.dataset.offAttr].attr=t.value; updateFormulas(); saveState(true); }
+});
+document.addEventListener("click", e=>{
+  const inc=e.target.dataset.sphInc, dec=e.target.dataset.sphDec;
+  if(inc){ state.spheres[inc]=Math.max(0,state.spheres[inc]+1); refreshSphereInput(inc); saveState(true); }
+  if(dec){ state.spheres[dec]=Math.max(0,state.spheres[dec]-1); refreshSphereInput(dec); saveState(true); }
+  if(e.target.dataset.talentBuy){ buyTalent(e.target.dataset.talentBuy); }
+});
+function refreshSphereInput(n){
+  const el=document.querySelector(`[data-sphere="${CSS.escape(n)}"]`);
+  if(el) el.value=state.spheres[n];
+  if(typeof updateSphereButtons==="function") updateSphereButtons();
+}
+
+/* tabs */
+document.querySelectorAll('nav.tabs button').forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll('nav.tabs button').forEach(b=>b.setAttribute("aria-selected","false"));
+    btn.setAttribute("aria-selected","true");
+    document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+    document.getElementById(btn.dataset.tab).classList.add("active");
+  });
+});
+
+/* toolbar */
+document.getElementById("saveBtn").addEventListener("click",()=>saveState(false));
+document.getElementById("resetBtn").addEventListener("click",()=>{
+  if(confirm("¿Empezar una ficha nueva? Se borrarán los datos guardados.")){
+    state=blankState(); saveState(true); renderAll(); flashNote("Ficha nueva");
+  }
+});
+document.getElementById("exportBtn").addEventListener("click",()=>{
+  const name=(state.nombre||"personaje").replace(/[^\w\-]+/g,"_");
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob); a.download="ficha_"+name+".json"; a.click();
+  URL.revokeObjectURL(a.href); flashNote("Exportado ✓");
+});
+document.getElementById("importBtn").addEventListener("click",()=>document.getElementById("fileInput").click());
+document.getElementById("fileInput").addEventListener("change",e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{ state=Object.assign(blankState(),JSON.parse(r.result)); sanitizeBoardState(); saveState(true); renderAll(); flashNote("Importado ✓"); }
+    catch(err){ alert("No se pudo leer el archivo: "+err.message); }
+  };
+  r.readAsText(f); e.target.value="";
+});
+
+/* ---------- Tablero de esferas (mapa 2D conectado) ---------- */
+function classRow(){
+  let c=state.boardClass;
+  if(!c||ROW_ORDER.indexOf(c)<0) c=(ROW_ORDER.indexOf(state.clase)>=0?state.clase:"Dragoon");
+  state.boardClass=c; return ROW_ORDER.indexOf(c);
+}
+function startId(){ return BOARD.starts[classRow()]; }
+function isActive(id){ return state.active.indexOf(id)>=0; }
+/* Una habilidad/técnica/magia está activa si su nodo asociado del tablero lo está. */
+function isAbilityActive(table, rama){ const nid=ABILITY_NODE[`${table}|${rama}`]; return nid?isActive(nid):false; }
+/* Refleja en el estado las activaciones derivadas del tablero (para exportar coherente). */
+function syncAbilitiesFromBoard(){
+  TEC_DATA && Object.keys(TEC_DATA).forEach(cls=>TEC_DATA[cls].forEach(([rama])=>{ if(state.tec) state.tec[rama]=isAbilityActive("tec",rama); }));
+  WHITE.forEach(([rama])=>{ if(state.white) state.white[rama]=isAbilityActive("white",rama); });
+  BLACK.forEach(([rama])=>{ if(state.black) state.black[rama]=isAbilityActive("black",rama); });
+  ensureBlue(); BLUE.forEach(([rama])=>{ state.blue[rama].on=isAbilityActive("blue",rama); });
+}
+/* Actualiza las casillas (deshabilitadas) de las tablas de clase según el tablero. */
+function refreshAbilityChecks(){
+  document.querySelectorAll("[data-ref]").forEach(el=>{ const [m,r]=el.dataset.ref.split("|"); el.checked=isAbilityActive(m,r); el.disabled=true; });
+  document.querySelectorAll("[data-black]").forEach(el=>{ el.checked=isAbilityActive("black",el.dataset.black); el.disabled=true; });
+  document.querySelectorAll("[data-blue-on]").forEach(el=>{ el.checked=isAbilityActive("blue",el.dataset.blueOn); el.disabled=true; });
+}
+function neighborActive(id){ return BOARD.adj[id].some(n=>isActive(n)); }
+function canActivate(id){
+  if(isActive(id)) return false;
+  if(state.active.length===0) return id===startId();
+  return neighborActive(id);
+}
+
+/* --- Movimiento por el tablero (sistema de UD) --- */
+/* Ruta más corta desde 'from' hasta 'to' pisando solo nodos activados;
+   el destino puede estar sin activar (se mueve uno a él). Devuelve el camino
+   incluyendo 'from', o null si no hay ruta válida. 'from' debe estar activado. */
+function boardPath(from, to){
+  if(from===to) return [from];
+  if(!isActive(from) && !isActive(to)) return null;   // desde un nodo sin activar no se puede ir a otro sin activar
+  const prev={}; prev[from]=null; const q=[from];
+  while(q.length){
+    const u=q.shift();
+    for(const v of BOARD.adj[u]){
+      if(v in prev) continue;
+      if(v===to){
+        if(isActive(to) || isActive(u)){ prev[v]=u; const p=[]; let x=to; while(x!==null){ p.unshift(x); x=prev[x]; } return p; }
+        continue;   // pisar un nodo sin activar requiere venir de uno activado
+      }
+      if(isActive(v)){ prev[v]=u; q.push(v); }   // solo se atraviesan nodos ya activados
+    }
+  }
+  return null;
+}
+/* Coste en UD de recorrer 'path' (sin contar la casilla de origen):
+   nodos ya activados -> 1 UD por cada 4; nodos sin activar -> 1 UD cada uno. */
+function moveCost(path){
+  const steps=path.slice(1);
+  let act=0, raw=0;
+  steps.forEach(id=>{ if(isActive(id)) act++; else raw++; });
+  return Math.ceil(act/4) + raw;
+}
+/* Nodos alcanzables (red activada desde la posición) y destinos de movimiento. */
+function boardMovable(){
+  const reach=new Set(), targets=new Set(), pos=state.pos;
+  if(pos && isActive(pos)){
+    reach.add(pos); const q=[pos];
+    while(q.length){ const u=q.shift(); for(const v of BOARD.adj[u]){ if(isActive(v)&&!reach.has(v)){ reach.add(v); q.push(v); } } }
+    reach.forEach(u=>BOARD.adj[u].forEach(v=>{ if(!reach.has(v)) targets.add(v); }));
+  }
+  return {reach, targets};
+}
+
+function canDeactivate(id){
+  if(!isActive(id)) return false;
+  const rest=state.active.filter(x=>x!==id);
+  if(rest.length===0) return true;
+  const start=startId();
+  if(rest.indexOf(start)<0) return false;
+  const set=new Set(rest), seen=new Set([start]), stack=[start];
+  while(stack.length){ const n=stack.pop(); BOARD.adj[n].forEach(m=>{ if(set.has(m)&&!seen.has(m)){ seen.add(m); stack.push(m); } }); }
+  return seen.size===rest.length;
+}
+function nodeCost(id){
+  const ty=nodeType(id);
+  if(ty==="BLO"){ const n=BOARD.nodes[id]; const lv=(n&&n.level)||1; return "Esfera Llave Nv."+lv; }
+  return NODE[ty] ? NODE[ty].sph : "Esfera de Vigor";
+}
+function boardSummary(){
+  const o={FUE:0,VIT:0,AGI:0,VEL:0,INT:0,VOL:0,TEC:0,HAB:0,MBL:0,MNE:0,BLO:0};
+  state.active.forEach(id=>{ const ty=nodeType(id),t=NODE[ty]; if(!t) return; if(t.grp==="stat")o[t.attr]++; else if(o[ty]!==undefined)o[ty]++; });
+  return o;
+}
+
+function renderBoard(){
+  const curRow=classRow();
+  const cstart=BOARD.starts[curRow];
+  if(!state.pos||!BOARD.nodes[state.pos]) state.pos=cstart;   // posición válida
+  const classLocked=isActive(cstart);              // clase fijada una vez activado su nodo inicial
+  const sel=document.getElementById("boardClass");
+  if(sel){ sel.value=ROW_ORDER[curRow]; sel.disabled=classLocked; sel.title=classLocked?"Clase fijada: el nodo inicial ya está activado":""; }
+  document.getElementById("boardLegend").innerHTML =
+    Object.keys(NODE).map(k=>`<span><i style="background:${NODE[k].color}"></i>${NODE[k].lbl}</span>`).join("");
+
+  const start=startId();
+  const pos=state.pos;
+  const {targets}=boardMovable();
+  const accent=state.boardColor||"#5fe0ec";    // color del indicador de posición y de las líneas activadas
+  const ca=document.getElementById("boardAccent"); if(ca) ca.value=accent;
+  let svg=`<svg viewBox="0 0 ${BOARD.W} ${BOARD.H}" width="${Math.round(BOARD.W*state.zoom)}" height="${Math.round(BOARD.H*state.zoom)}" xmlns="http://www.w3.org/2000/svg" class="board-svg">`;
+  ROW_ORDER.forEach((cls,r)=>{
+    const cy=80 + r*158;
+    if(r===curRow) svg+=`<rect x="0" y="${cy-70}" width="${BOARD.W}" height="140" fill="rgba(95,224,236,0.06)"/>`;
+    svg+=`<text x="12" y="${cy+4}" font-family="'Cinzel',serif" font-size="12" font-weight="600" fill="${r===curRow?'#5fe0ec':'#9fb2d4'}" pointer-events="none">${cls.toUpperCase()}</text>`;
+  });
+  BOARD.edges.forEach(([a,b])=>{
+    const na=BOARD.nodes[a], nb=BOARD.nodes[b], on=isActive(a)&&isActive(b);
+    svg+=`<line x1="${na.x}" y1="${na.y}" x2="${nb.x}" y2="${nb.y}" stroke="${on?accent:'#3c4f74'}" stroke-width="${on?4:2.5}" stroke-linecap="round" opacity="${on?0.95:0.5}"/>`;
+  });
+  Object.values(BOARD.nodes).forEach(n=>{
+    const ty=nodeType(n.id), t=NODE[ty];
+    const active=isActive(n.id), isPos=(n.id===pos), movable=targets.has(n.id);
+    let fill,stroke,txtc,sw,cls="bnode";
+    if(active){ fill=t.color; stroke="#ffffff"; txtc="#0a1124"; sw=2; }   // nodo activado: color de su tipo
+    else if(movable||isPos){ fill="#0e1830"; stroke=t.color; txtc=t.color; sw=3; cls+=" avail"; }
+    else { fill="#0e1830"; stroke=t.color; txtc=t.color; sw=2; cls+=" idle"; }
+    const r=t.grp==="lock"?12:14;
+    const lab=t.grp==="lock"?String(n.level||""):t.ab;
+    const cost=nodeCost(n.id);
+    const role = isPos ? (active?" · POSICIÓN ACTUAL":" · POSICIÓN ACTUAL (toca para activar)") : (movable?" · mover aquí":"");
+    const title=(t.grp==="stat"?`${t.lbl} · +1 ${t.attr}`:(t.grp==="lock"?`${t.lbl} Nv.${n.level||1}`:t.lbl))+` · cuesta ${cost}`+role;
+    svg+=`<g class="${cls}" data-node="${n.id}">`;
+    svg+=`<circle cx="${n.x}" cy="${n.y}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"${active?` style="filter:drop-shadow(0 0 5px ${t.color})"`:` opacity="${(movable||isPos)?1:0.6}"`}/>`;
+    if(isPos){                                   // indicador de posición actual
+      svg+=`<circle cx="${n.x}" cy="${n.y}" r="${r+6}" fill="none" stroke="${accent}" stroke-width="2.5" stroke-dasharray="4 3" style="filter:drop-shadow(0 0 4px ${accent})"><animateTransform attributeName="transform" type="rotate" from="0 ${n.x} ${n.y}" to="360 ${n.x} ${n.y}" dur="12s" repeatCount="indefinite"/></circle>`;
+    }
+    svg+=`<text x="${n.x}" y="${n.y+3.5}" text-anchor="middle" font-family="'Spline Sans Mono',monospace" font-size="${t.grp==='lock'?11:9.5}" font-weight="700" fill="${txtc}" pointer-events="none">${lab}</text>`;
+    svg+=`<title>${title}</title></g>`;
+  });
+  svg+=`</svg>`;
+  document.getElementById("boardTrack").innerHTML=svg;
+
+  const total=Object.keys(BOARD.nodes).length;
+  document.getElementById("boardProgress").innerHTML =
+    `<span class="pbar"><i style="width:${(state.active.length/total*100)}%"></i></span> ${state.active.length} / ${total} nodos · <b id="boardUD" style="color:#f0d27a">${num(state.ud)} UD</b>`;
+  const tt=boardSummary(), chips=[];
+  ["FUE","VIT","AGI","VEL","INT","VOL"].forEach(a=>{ if(tt[a]) chips.push(`<span class="chip">${a} <b>+${tt[a]}</b></span>`); });
+  [["TEC","Técnicas"],["HAB","Habilidad"],["MBL","M. Blanca"],["MNE","M. Negra"],["BLO","Bloqueos"]].forEach(([k,l])=>{ if(tt[k]) chips.push(`<span class="chip">${l} <b>${tt[k]}</b></span>`); });
+  document.getElementById("boardTotals").innerHTML = chips.length?chips.join(""):`<span class="chip" style="opacity:.55">Sin nodos activados</span>`;
+  if(typeof updateSphereButtons==="function") updateSphereButtons();
+}
+
+/* ---- Esferas de acción del tablero ---- */
+let armedSphere=null;
+const SPHERE_ACTIONS={
+  "Esfera Warp":{
+    hint:"Elige cualquier nodo (activado o no) para teletransportarte. No gasta UD.",
+    confirm:()=>`¿Usar Esfera Warp para moverte a este nodo?\nNo gasta UD. Se gastará 1 Esfera Warp.`,
+    exec:id=>{ state.pos=id; },
+    done:"Te has teletransportado (toca el nodo para activarlo)"
+  },
+  "Esfera de Retorno":{
+    hint:"Elige un nodo YA ACTIVADO para regresar a él. No gasta UD.",
+    valid:id=>isActive(id), invalidMsg:"Debe ser un nodo ya activado",
+    confirm:()=>`¿Volver a este nodo activado?\nNo gasta UD. Se gastará 1 Esfera de Retorno.`,
+    exec:id=>{ state.pos=id; },
+    done:"Has regresado a un nodo activado"
+  },
+  "Esfera Amiga":{
+    hint:"Elige un nodo activado por un aliado. No gasta UD.",
+    confirm:()=>`¿Usar Esfera Amiga para moverte a este nodo?\nDebe ser un nodo previamente activado por un aliado.\nNo gasta UD. Se gastará 1 Esfera Amiga.`,
+    exec:id=>{ state.pos=id; },
+    done:"Te has movido al nodo aliado (toca el nodo para activarlo)"
+  },
+  "Esfera Maestra":{
+    hint:"Elige cualquier nodo para activarlo sin moverte ni gastar UD.",
+    valid:id=>!isActive(id), invalidMsg:"Ese nodo ya está activado",
+    confirm:()=>`¿Activar este nodo con la Esfera Maestra?\nNo te mueves ni gastas UD. Se gastará 1 Esfera Maestra.`,
+    exec:id=>{ if(!isActive(id)) state.active.push(id); },
+    done:"Nodo activado con la Esfera Maestra"
+  },
+};
+function updateSphereButtons(){
+  document.querySelectorAll("[data-sphere-act]").forEach(b=>{
+    const n=b.dataset.sphereAct, c=state.spheres[n]||0;
+    b.textContent=`${n} (${c})`;
+    b.style.opacity = c>0 ? "1" : ".5";
+  });
+  const sup=document.getElementById("boardEditToggle");
+  if(sup){ const c=state.spheres["Esfera Supresora"]||0; sup.textContent=`Esfera Supresora (${c})`; sup.style.opacity=c>0?"1":".5"; }
+}
+function updateArmedUI(){
+  document.querySelectorAll(".sph-btn").forEach(b=>b.classList.toggle("armed", b.dataset.sphereAct===armedSphere));
+  const bar=document.getElementById("boardArmed");
+  if(!bar) return;
+  if(armedSphere){
+    bar.style.display="flex";
+    bar.innerHTML=`<span><b>${armedSphere}</b> · ${SPHERE_ACTIONS[armedSphere].hint} Elige un nodo.</span><button id="armCancel">Cancelar</button>`;
+    const c=document.getElementById("armCancel"); if(c) c.onclick=cancelArm;
+  } else { bar.style.display="none"; bar.innerHTML=""; }
+}
+function cancelArm(){ armedSphere=null; updateArmedUI(); }
+function armSphere(name){
+  if(armedSphere===name){ cancelArm(); return; }
+  if((state.spheres[name]||0)<=0){ flashNote("No tienes "+name); return; }
+  closeSupresoraPanel();
+  armedSphere=name; updateArmedUI();
+  flashNote(`${name} lista · elige el nodo de destino`);
+}
+function handleArmedSphere(id){
+  const act=SPHERE_ACTIONS[armedSphere];
+  if(act.valid && !act.valid(id)){ flashNote(act.invalidMsg||"Nodo no válido"); return; }
+  if((state.spheres[armedSphere]||0)<=0){ flashNote("No tienes "+armedSphere); cancelArm(); return; }
+  if(!confirm(act.confirm(id))) return;          // sigue armado por si quiere elegir otro nodo
+  act.exec(id);
+  state.spheres[armedSphere]--;
+  const done=act.done;
+  cancelArm();
+  saveState(true); renderBoard(); renderSpheres(); recompute();
+  flashNote(done);
+}
+
+/* ---- Esfera Supresora: cambia el tipo del nodo actual (activado) gastando
+   1 Esfera Supresora + 1 esfera de atributo. El nodo queda desactivado. ---- */
+const SUP_MAP=[
+  ["Esfera de Fuerza","FUE"],["Esfera de Vitalidad","VIT"],
+  ["Esfera de Intelecto","INT"],["Esfera de Voluntad","VOL"],
+  ["Esfera de Agilidad","AGI"],["Esfera de Velocidad","VEL"],
+];
+let supresoraNode=null;
+function startSupresora(){
+  cancelArm();
+  if((state.spheres["Esfera Supresora"]||0)<=0){ flashNote("No tienes Esfera Supresora"); return; }
+  const id=state.pos;
+  if(!isActive(id)){ flashNote("Solo puedes usar la Esfera Supresora sobre tu nodo actual, y debe estar activado"); return; }
+  const grp=NODE[nodeType(id)]?NODE[nodeType(id)].grp:"";
+  if(grp==="hab"){ flashNote("No se pueden cambiar nodos de habilidades, técnicas o magias"); return; }
+  showSupresoraPanel(id);
+}
+function showSupresoraPanel(id){
+  supresoraNode=id;
+  const bar=document.getElementById("boardArmed"); if(!bar) return;
+  const tyNow=nodeType(id);
+  const opts=SUP_MAP.map(([sph,ty])=>{
+    const c=state.spheres[sph]||0;
+    return `<button data-sup="${ty}|${sph}" ${c<=0?"disabled style=\"opacity:.4;cursor:not-allowed\"":""}>${NODE[ty].lbl} <small>(${sph.replace('Esfera de ','')}×${c})</small></button>`;
+  }).join("");
+  bar.style.display="flex";
+  bar.innerHTML=`<span><b>Esfera Supresora</b> · cambia tu nodo actual (${NODE[tyNow]?NODE[tyNow].lbl:tyNow}) a:</span>`+
+    `<span style="display:flex;gap:6px;flex-wrap:wrap">${opts}</span><button id="armCancel">Cancelar</button>`;
+  bar.querySelectorAll("[data-sup]").forEach(b=>b.onclick=()=>{ const [ty,sph]=b.dataset.sup.split("|"); applySupresora(id,sph,ty); });
+  const c=document.getElementById("armCancel"); if(c) c.onclick=closeSupresoraPanel;
+}
+function closeSupresoraPanel(){ supresoraNode=null; if(armedSphere===null){ const bar=document.getElementById("boardArmed"); if(bar){ bar.style.display="none"; bar.innerHTML=""; } } }
+function applySupresora(id,sphereName,newType){
+  if(id!==state.pos || !isActive(id)){ flashNote("El nodo debe ser tu posición actual y estar activado"); closeSupresoraPanel(); return; }
+  if((state.spheres["Esfera Supresora"]||0)<=0){ flashNote("No tienes Esfera Supresora"); return; }
+  if((state.spheres[sphereName]||0)<=0){ flashNote("No tienes "+sphereName); return; }
+  if(!confirm(`Cambiar este nodo a ${NODE[newType].lbl}.\nSe consumirá 1 Esfera Supresora y 1 ${sphereName}.\nEl nodo quedará desactivado.`)) return;   // si no confirma, no se gasta nada
+  state.spheres["Esfera Supresora"]--;
+  state.spheres[sphereName]--;
+  state.tover[id]=newType;                            // cambia el tipo del nodo
+  state.active=state.active.filter(x=>x!==id);        // queda desactivado
+  closeSupresoraPanel();
+  saveState(true); renderBoard(); renderSpheres(); recompute();
+  flashNote(`Nodo cambiado a ${NODE[newType].lbl} (desactivado; actívalo con su esfera)`);
+}
+
+let boardEdit=false;
+document.addEventListener("click", e=>{
+  const g=e.target.closest("[data-node]");
+  if(!g) return;
+  const tab=document.getElementById("tablero");
+  if(!tab||!tab.classList.contains("active")) return;
+  const id=g.dataset.node;
+  if(armedSphere){ handleArmedSphere(id); return; }
+  if(boardEdit){
+    const keys=Object.keys(NODE), idx=keys.indexOf(nodeType(id));
+    state.tover[id]=keys[(idx+1)%keys.length];
+    saveState(true); renderBoard(); recompute(); return;
+  }
+
+  if(id===state.pos){
+    /* Click en la posición actual -> activar (si procede). No se puede desactivar. */
+    if(isActive(id)){ flashNote("Ya estás aquí (nodo activado)"); return; }
+    const s=nodeCost(id);
+    if((state.spheres[s]||0)<=0){ flashNote("Te falta una "+s); return; }
+    if(!confirm(`¿Activar este nodo?\nCoste: 1 ${s}`)) return;
+    state.spheres[s]--; state.active.push(id);
+    saveState(true); renderBoard(); renderSpheres(); recompute();
+    flashNote("Nodo activado");
+    return;
+  }
+
+  /* Click en otro nodo -> mover el indicador de posición. */
+  const path=boardPath(state.pos, id);
+  if(!path){
+    if(!isActive(state.pos) && !isActive(id)) flashNote("Desde un nodo sin activar solo puedes ir a un nodo activado");
+    else flashNote("No hay ruta activada hasta ahí");
+    return;
+  }
+  const cost=moveCost(path);
+  if(num(state.ud) < cost){ flashNote(`UD insuficientes (necesitas ${cost})`); return; }
+  const steps=path.length-1, destNuevo=!isActive(id);
+  const s = destNuevo ? nodeCost(id) : null;
+  const haySfera = destNuevo && (state.spheres[s]||0)>0;     // ¿se puede activar al llegar?
+  const detalle = destNuevo ? `${steps} nodo(s), 1 sin activar` : `${steps} nodo(s) activados`;
+  let msg = `¿Mover hasta aquí?\nRecorrido: ${detalle}\nCoste: ${cost} UD`;
+  if(destNuevo) msg += haySfera ? `\n+ activar al llegar: 1 ${s}` : `\n(sin ${s}: te moverás sin activar)`;
+  if(!confirm(msg)) return;
+  state.ud = num(state.ud) - cost;
+  state.pos = id;
+  let activado=false;
+  if(destNuevo && haySfera){ state.spheres[s]--; state.active.push(id); activado=true; }   // activar al moverse si hay esfera
+  const udEl=document.querySelector('[data-id="ud"]'); if(udEl) udEl.value=state.ud;
+  saveState(true); renderBoard(); recompute();
+  if(activado) renderSpheres();
+  flashNote(activado ? "Te has movido y activaste el nodo"
+           : destNuevo ? "Te has movido (sin esfera: actívalo aquí cuando la tengas)"
+           : "Posición actualizada");
+});
+
+document.addEventListener("change", e=>{
+  if(e.target.id==="boardClass"){
+    if(isActive(BOARD.starts[classRow()])){ e.target.value=ROW_ORDER[classRow()]; flashNote("Clase fijada: el nodo inicial ya está activado"); return; }
+    state.boardClass=e.target.value; state.pos=BOARD.starts[classRow()]; saveState(true); renderBoard();
+  }
+});
+document.getElementById("zoomIn").addEventListener("click",()=>{ state.zoom=Math.min(2,Math.round((state.zoom+0.15)*100)/100); saveState(true); renderBoard(); });
+document.getElementById("zoomOut").addEventListener("click",()=>{ state.zoom=Math.max(0.5,Math.round((state.zoom-0.15)*100)/100); saveState(true); renderBoard(); });
+const accentEl=document.getElementById("boardAccent");
+if(accentEl) accentEl.addEventListener("input",e=>{ state.boardColor=e.target.value; saveState(true); renderBoard(); });
+document.getElementById("boardReset").addEventListener("click",()=>{
+  if(!state.active.length){ flashNote("El tablero ya está a cero"); return; }
+  if(confirm("¿Reiniciar el progreso del tablero y devolver todas las esferas al inventario?")){
+    state.active.forEach(id=>{ const s=nodeCost(id); state.spheres[s]=(state.spheres[s]||0)+1; });
+    state.active=[]; state.pos=BOARD.starts[classRow()]; saveState(true); renderBoard(); renderSpheres(); recompute(); flashNote("Tablero reiniciado");
+  }
+});
+document.getElementById("boardEditToggle").addEventListener("click", startSupresora);
+document.querySelectorAll("[data-sphere-act]").forEach(b=>b.addEventListener("click",()=>armSphere(b.dataset.sphereAct)));
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ if(armedSphere) cancelArm(); else if(supresoraNode) closeSupresoraPanel(); } });
+
+/* ---------- Init ---------- */
+function renderAll(){
+  hydrateSimple();
+  ensureAbil();
+  renderAttrs(); renderSkills(); renderBlack(); renderBlue(); renderWhite(); renderTec(); renderEquip(); renderSpheres(); renderBoard(); renderFree(); renderTalents();
+  recompute();
+}
+renderAll();
+</script>
+</body>
+</html>
