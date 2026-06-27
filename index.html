@@ -1896,7 +1896,7 @@ function renderBoard(){
     const ty=nodeType(n.id), t=NODE[ty];
     const active=isActive(n.id), isPos=(n.id===pos), movable=targets.has(n.id);
     let fill,stroke,txtc,sw,cls="bnode";
-    if(active){ fill=t.color; stroke="#ffffff"; txtc="#0a1124"; sw=2; }   // nodo activado: color de su tipo
+    if(active){ fill=t.color; stroke=accent; txtc="#0a1124"; sw=2; }   // nodo activado: borde = color personalizado
     else if(movable||isPos){ fill="#0e1830"; stroke=t.color; txtc=t.color; sw=3; cls+=" avail"; }
     else { fill="#0e1830"; stroke=t.color; txtc=t.color; sw=2; cls+=" idle"; }
     const r=t.grp==="lock"?12:14;
