@@ -115,6 +115,13 @@
   .turbo-carga .tc-state{font-size:.82rem;color:var(--ink-dim);margin-left:4px}
   .turbo-carga.ready{border-color:#ff9a3c;box-shadow:0 0 14px rgba(255,140,50,.25)}
   .turbo-carga.ready .tc-state{color:#ffb86b;font-weight:700}
+  .turbo-carga .turbo-use{font-family:'Cinzel',serif;font-weight:600;font-size:.74rem;letter-spacing:.06em;cursor:pointer;
+    border-radius:6px;padding:7px 15px;border:1px solid var(--edge-soft);color:var(--ink-dim);
+    background:rgba(12,22,52,.6);transition:.15s;white-space:nowrap;margin-left:auto}
+  .turbo-carga .turbo-use:hover{border-color:var(--cyan);color:var(--cyan)}
+  .turbo-carga.ready .turbo-use{border-color:#ff9a3c;color:#2a1402;
+    background:linear-gradient(180deg,#ffb061,#ff8a2c);box-shadow:0 0 14px rgba(255,140,50,.5)}
+  .turbo-carga.ready .turbo-use:hover{filter:brightness(1.08)}
 
   /* ---------- Talentos ---------- */
   .talent-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-top:6px}
@@ -200,6 +207,17 @@
   .gauge .nums .max{color:var(--ink-dim)}
   .gauge .nums .lbl{font-family:'Inter';font-size:.62rem;letter-spacing:.14em;color:var(--ink-dim);text-transform:uppercase;margin-left:auto}
 
+  /* Calculadora rápida (sumar +/- a HP, MP o Carga). No se guarda en export/import. */
+  .vcalc{display:flex;align-items:center;gap:6px;margin-top:11px;flex-wrap:wrap}
+  .vcalc .vcalc-lbl{font-family:'Inter',sans-serif;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-dim)}
+  .vcalc input{width:78px;text-align:center;font-family:'Spline Sans Mono',monospace;padding:7px 8px}
+  .vcalc button{font-family:'Cinzel',serif;font-weight:600;font-size:.72rem;letter-spacing:.04em;cursor:pointer;
+    border-radius:6px;padding:7px 13px;border:1px solid var(--edge-soft);color:var(--ink-dim);
+    background:rgba(12,22,52,.6);transition:.15s;white-space:nowrap}
+  .vcalc button:hover{border-color:var(--cyan);color:var(--cyan)}
+  .gauge.hp .vcalc button:hover{border-color:var(--hp);color:var(--hp)}
+  .gauge.mp .vcalc button:hover{border-color:var(--mp2);color:var(--mp2)}
+
   /* tables */
   .tbl-scroll{overflow-x:auto;border-radius:var(--radius)}
   table{width:100%;border-collapse:collapse;font-size:.86rem;min-width:520px}
@@ -244,6 +262,12 @@
   .spell-tbl .fcalc{color:#8fe3c0;font-weight:700;white-space:nowrap;font-family:'Spline Sans Mono',monospace;font-size:.78rem}
   .spell-tbl .mp-cell{font-family:'Spline Sans Mono',monospace;text-align:center;white-space:nowrap}
   .spell-tbl .mp-cell b{color:var(--mp2,#7fd0ff);font-weight:700}
+  .spell-tbl .use-cell{text-align:center;white-space:nowrap}
+  .spell-tbl .use-btn{font-family:'Cinzel',serif;font-weight:600;font-size:.68rem;letter-spacing:.04em;cursor:pointer;
+    border-radius:6px;padding:5px 12px;border:1px solid var(--edge-soft);color:var(--mp2);
+    background:rgba(12,22,52,.6);transition:.15s;white-space:nowrap}
+  .spell-tbl .use-btn:hover{border-color:var(--mp2);color:#cfe6ff;box-shadow:0 0 10px rgba(98,184,241,.28)}
+  .spell-tbl .use-btn:active{transform:translateY(1px)}
   .spell-tbl .dmgnum,.spell-tbl .blue-dmg-cell select{font-family:'Spline Sans Mono',monospace;text-align:center}
   .spell-tbl .blue-dmg-cell{white-space:nowrap;font-size:.8rem}
   /* equipo */
@@ -420,6 +444,7 @@
           <span class="lbl">Puntos de vida</span>
         </div>
         <label class="brk" title="Ignora el límite de 999 HP y usa el valor completo"><input type="checkbox" data-break="hp"> Romper límite (999)</label>
+        <div class="vcalc"><span class="vcalc-lbl">± HP</span><input class="num" type="number" inputmode="numeric" id="hpCalc" placeholder="±0"><button type="button" id="hpCalcBtn">Confirmar</button></div>
       </div>
       <div class="win gauge mp">
         <div class="top"><b>MP</b><span class="formula" id="mpFormula">INT × 4</span></div>
@@ -429,6 +454,7 @@
           <span class="lbl">Puntos de magia</span>
         </div>
         <label class="brk" title="Ignora el límite de 99 MP y usa el valor completo"><input type="checkbox" data-break="mp"> Romper límite (99)</label>
+        <div class="vcalc"><span class="vcalc-lbl">± MP</span><input class="num" type="number" inputmode="numeric" id="mpCalc" placeholder="±0"><button type="button" id="mpCalcBtn">Confirmar</button></div>
       </div>
     </div>
 
@@ -504,7 +530,7 @@
       </div>
       <div class="tbl-scroll">
         <table class="spell-tbl">
-          <thead><tr><th style="width:42px">Act.</th><th>Rama</th><th>Nombre</th><th>Efecto</th><th style="width:54px">MP</th></tr></thead>
+          <thead><tr><th style="width:42px">Act.</th><th>Rama</th><th>Nombre</th><th>Efecto</th><th style="width:54px">MP</th><th style="width:64px">Usar</th></tr></thead>
           <tbody id="whiteBody"></tbody>
         </table>
       </div>
@@ -514,7 +540,7 @@
       </div>
       <div class="tbl-scroll">
         <table class="spell-tbl">
-          <thead><tr><th style="width:42px">Act.</th><th>Rama</th><th>Nombre</th><th>Efecto</th><th style="width:54px">MP</th></tr></thead>
+          <thead><tr><th style="width:42px">Act.</th><th>Rama</th><th>Nombre</th><th>Efecto</th><th style="width:54px">MP</th><th style="width:64px">Usar</th></tr></thead>
           <tbody id="blackBody"></tbody>
         </table>
       </div>
@@ -524,7 +550,7 @@
       </div>
       <div class="tbl-scroll">
         <table class="spell-tbl">
-          <thead><tr><th style="width:42px">Act.</th><th>Rama</th><th>Habilidad aprendida</th><th style="width:170px">Daño (nº × atributo)</th><th style="width:60px">MP</th></tr></thead>
+          <thead><tr><th style="width:42px">Act.</th><th>Rama</th><th>Habilidad aprendida</th><th style="width:170px">Daño (nº × atributo)</th><th style="width:60px">MP</th><th style="width:64px">Usar</th></tr></thead>
           <tbody id="blueBody"></tbody>
         </table>
       </div>
@@ -542,11 +568,13 @@
         <span class="tc-sep">/</span>
         <input class="num" type="number" min="0" inputmode="numeric" data-turbo-carga="max" id="turboCargaMax" placeholder="0">
         <span class="tc-state" id="turboCargaState">—</span>
+        <button type="button" id="turboUseBtn" class="turbo-use" title="Disponible al alcanzar la carga máxima. Reinicia la carga a 0.">Usar</button>
       </div>
+      <div class="vcalc"><span class="vcalc-lbl">± Carga</span><input class="num" type="number" inputmode="numeric" id="cargaCalc" placeholder="±0"><button type="button" id="cargaCalcBtn">Confirmar</button></div>
       <textarea id="turboBox" class="inv-box" placeholder="Notas libres de Turbo… escribe lo que quieras aquí."></textarea>
       <div class="tbl-scroll" style="margin-top:16px">
         <table class="spell-tbl">
-          <thead><tr><th style="width:42px">Act.</th><th style="width:130px">Nombre</th><th>Habilidad / descripción</th><th style="width:170px">Daño (nº × atributo)</th><th style="width:60px">MP</th></tr></thead>
+          <thead><tr><th style="width:42px">Act.</th><th style="width:130px">Nombre</th><th>Habilidad / descripción</th><th style="width:170px">Daño (nº × atributo)</th><th style="width:60px">MP</th><th style="width:64px">Usar</th></tr></thead>
           <tbody id="turboBody"></tbody>
         </table>
       </div>
@@ -559,7 +587,7 @@
       <h2 class="section-title">Offclass · Habilidades libres</h2>
       <div class="tbl-scroll">
         <table class="spell-tbl">
-          <thead><tr><th style="width:42px">Act.</th><th style="width:130px">Nombre</th><th>Habilidad / descripción</th><th style="width:170px">Daño (nº × atributo)</th><th style="width:60px">MP</th></tr></thead>
+          <thead><tr><th style="width:42px">Act.</th><th style="width:130px">Nombre</th><th>Habilidad / descripción</th><th style="width:170px">Daño (nº × atributo)</th><th style="width:60px">MP</th><th style="width:64px">Usar</th></tr></thead>
           <tbody id="offBody"></tbody>
         </table>
       </div>
@@ -883,6 +911,20 @@ const NODE = {
   BLO:{lbl:"Bloqueo",      ab:"▦",  color:"#8a8f9c", sph:"Esfera Llave Nv.1", grp:"lock"},
 };
 
+/* ---------- Iconos de nodos (PNG locales: activado / desactivado) ----------
+   Rutas RELATIVAS para que funcionen en GitHub Pages (usuario.github.io/repo/).
+   ICON_SCALE controla el tamaño del icono respecto al radio del nodo. */
+const ICON_BASE  = "assets/nodos/";
+const ICON_SCALE = 2.45;
+const ICON_FILE  = { FUE:"fue", VIT:"vit", AGI:"agi", VEL:"vel", INT:"int",
+                     VOL:"vol", TEC:"tec", HAB:"hab", MBL:"mbl", MNE:"mne" };
+function nodeIcon(ty, level, on){
+  const st = on ? "on" : "off";
+  if(ty==="BLO") return `${ICON_BASE}${st}/bloqueo-${level||1}.png`;
+  const f = ICON_FILE[ty];
+  return f ? `${ICON_BASE}${st}/${f}.png` : null;   // null -> respaldo a círculo
+}
+
 /* Estructura tipo Sphere Grid (FFX): cada clase es una fila formada por
    agrupaciones circulares (anillos) de 5-7 nodos enlazadas por una espina
    horizontal. Los bloqueos propios de cada clase forman una cadena lineal
@@ -1167,6 +1209,7 @@ function formulaHTML(text){
 }
 function effectCell(eff){ const {text,mp}=parseMP(eff); return {effHTML:formulaHTML(text), mp}; }
 function mpCell(mp){ return `<td class="mp-cell">${mp?`<b>${mp}</b>`:'—'}</td>`; }
+function useCell(){ return `<td class="use-cell"><button type="button" class="use-btn" title="Restar el coste de MP al MP actual">Usar</button></td>`; }
 /* Recalcula todos los resultados de fórmula (tablas de clase + daño de Mago Azul). */
 function updateFormulas(){
   document.querySelectorAll(".fcalc[data-attr]").forEach(el=>{
@@ -1269,7 +1312,8 @@ function renderBlack(){
       <td><span class="rama">${rama}</span></td>
       <td><span class="sp-name">${name}</span></td>
       <td class="effect">${effHTML}</td>
-      ${mpCell(mp)}`;
+      ${mpCell(mp)}
+      ${useCell()}`;
     body.appendChild(tr);
   });
   updateFormulas();
@@ -1307,7 +1351,8 @@ function renderBlue(){
       <td class="blue-slot"><span class="rama">${rama}</span></td>
       <td class="blue-slot">${desc}</td>
       ${dmgCell}
-      ${mpCellHtml}`;
+      ${mpCellHtml}
+      ${useCell()}`;
     body.appendChild(tr);
   });
   updateFormulas();
@@ -1339,12 +1384,14 @@ function renderFreeTable(kind, rows, bodyId){
       <td class="blue-slot"><input class="learn" data-${kind}-name="${i}" value="${esc(v.name)}" placeholder="Nombre…"></td>
       <td class="blue-slot"><input class="learn" data-${kind}-text="${i}" value="${esc(v.text)}" placeholder="Habilidad / descripción…"></td>
       <td class="blue-dmg-cell"><input class="num dmgnum" type="number" min="0" data-${kind}-coef="${i}" value="${esc(String(v.coef))}" placeholder="nº" style="width:48px"> × <select data-${kind}-attr="${i}" style="width:64px;font-size:.7rem;padding:4px">${attrOpts(v.attr)}</select><span class="fcalc" data-${kind}-dmg="${i}"></span></td>
-      <td class="mp-cell"><input class="num" type="number" min="0" data-${kind}-mp="${i}" value="${esc(String(v.mp))}" placeholder="MP" style="width:48px"></td>`;
+      <td class="mp-cell"><input class="num" type="number" min="0" data-${kind}-mp="${i}" value="${esc(String(v.mp))}" placeholder="MP" style="width:48px"></td>
+      ${useCell()}`;
     body.appendChild(tr);
   });
 }
 function renderFree(){
   ensureFree();
+  if(state.turbo.carga!=="" && state.turbo.carga!=null) state.turbo.carga=clampCarga(state.turbo.carga);
   const tb=document.getElementById("turboBox"); if(tb) tb.value=state.turbo.text||"";
   const cc=document.getElementById("turboCargaCur"); if(cc) cc.value=state.turbo.carga;
   const cm=document.getElementById("turboCargaMax"); if(cm) cm.value=state.turbo.cargaMax;
@@ -1364,6 +1411,14 @@ function updateTurboGlow(){
   if(box) box.classList.toggle("ready", ready);
   const st=document.getElementById("turboCargaState");
   if(st) st.textContent = max>0 ? (ready ? "¡Turbo listo!" : "Cargando… "+cur+"/"+max) : "Define la carga máxima";
+}
+/* Limita la carga actual al rango [0, máximo]. Si no hay máximo definido (>0) solo aplica el suelo 0. */
+function clampCarga(v){
+  ensureFree();
+  let c=Math.max(0, num(v));
+  const max=num(state.turbo.cargaMax);
+  if(max>0 && c>max) c=max;
+  return c;
 }
 
 /* ---------- Talentos ---------- */
@@ -1496,6 +1551,7 @@ function renderRefRows(data, mapName){
       <td><span class="sp-name">${name}</span></td>
       <td class="effect">${effHTML}</td>
       ${mpCell(mp)}
+      ${useCell()}
     </tr>`;}).join("");
 }
 const CLASS_DESC = {
@@ -1512,7 +1568,7 @@ function renderTec(){
     <div class="magic-head tec"><h3>${cls}</h3><span class="pill">${CLASS_DESC[cls]||"Técnicas de clase"}</span></div>
     <div class="tbl-scroll">
       <table class="spell-tbl">
-        <thead><tr><th style="width:42px">Act.</th><th>Rama</th><th>Nombre</th><th>Efecto</th><th style="width:54px">MP</th></tr></thead>
+        <thead><tr><th style="width:42px">Act.</th><th>Rama</th><th>Nombre</th><th>Efecto</th><th style="width:54px">MP</th><th style="width:64px">Usar</th></tr></thead>
         <tbody>${renderRefRows(TEC_DATA[cls],"tec")}</tbody>
       </table>
     </div>`).join("");
@@ -1702,7 +1758,13 @@ document.addEventListener("input", e=>{
   else if(t.dataset.equip){ const [g,slot,f]=t.dataset.equip.split("|"); ensureEquip(); state.equip[g][slot][f]=(t.type==="number")?(t.value===""?"":num(t.value)):t.value; recompute(); }
   else if(t.id==="invBox"){ ensureEquip(); state.equip.inv=t.value; }
   else if(t.id==="turboBox"){ ensureFree(); state.turbo.text=t.value; }
-  else if(t.dataset.turboCarga!==undefined){ ensureFree(); const k=(t.dataset.turboCarga==="max")?"cargaMax":"carga"; state.turbo[k]=(t.value===""?"":num(t.value)); updateTurboGlow(); }
+  else if(t.dataset.turboCarga!==undefined){
+    ensureFree();
+    if(t.dataset.turboCarga==="max"){ state.turbo.cargaMax=(t.value===""?"":num(t.value)); }
+    else if(t.value===""){ state.turbo.carga=""; }
+    else { const c=clampCarga(t.value); state.turbo.carga=c; if(num(t.value)!==c) t.value=c; }
+    updateTurboGlow();
+  }
   else if(t.dataset.turboName!==undefined){ ensureFree(); state.turbo.rows[+t.dataset.turboName].name=t.value; }
   else if(t.dataset.turboText!==undefined){ ensureFree(); state.turbo.rows[+t.dataset.turboText].text=t.value; }
   else if(t.dataset.turboCoef!==undefined){ ensureFree(); state.turbo.rows[+t.dataset.turboCoef].coef=t.value; updateFormulas(); }
@@ -1882,7 +1944,7 @@ function renderBoard(){
   const {targets}=boardMovable();
   const accent=state.boardColor||"#5fe0ec";    // color del indicador de posición y de las líneas activadas
   const ca=document.getElementById("boardAccent"); if(ca) ca.value=accent;
-  let svg=`<svg viewBox="0 0 ${BOARD.W} ${BOARD.H}" width="${Math.round(BOARD.W*state.zoom)}" height="${Math.round(BOARD.H*state.zoom)}" xmlns="http://www.w3.org/2000/svg" class="board-svg">`;
+  let svg=`<svg viewBox="0 0 ${BOARD.W} ${BOARD.H}" width="${Math.round(BOARD.W*state.zoom)}" height="${Math.round(BOARD.H*state.zoom)}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="board-svg">`;
   ROW_ORDER.forEach((cls,r)=>{
     const cy=80 + r*158;
     if(r===curRow) svg+=`<rect x="0" y="${cy-70}" width="${BOARD.W}" height="140" fill="rgba(95,224,236,0.06)"/>`;
@@ -1904,12 +1966,19 @@ function renderBoard(){
     const cost=nodeCost(n.id);
     const role = isPos ? (active?" · POSICIÓN ACTUAL":" · POSICIÓN ACTUAL (toca para activar)") : (movable?" · mover aquí":"");
     const title=(t.grp==="stat"?`${t.lbl} · +1 ${t.attr}`:(t.grp==="lock"?`${t.lbl} Nv.${n.level||1}`:t.lbl))+` · cuesta ${cost}`+role;
+    const icon=nodeIcon(ty, n.level, active);
     svg+=`<g class="${cls}" data-node="${n.id}">`;
-    svg+=`<circle cx="${n.x}" cy="${n.y}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"${active?` style="filter:drop-shadow(0 0 5px ${t.color})"`:` opacity="${(movable||isPos)?1:0.6}"`}/>`;
-    if(isPos){                                   // indicador de posición actual
+    if(icon){                                    // relleno por icono PNG (activado/desactivado)
+      const d=r*ICON_SCALE;
+      const fx = active ? ` style="filter:drop-shadow(0 0 5px ${t.color})"` : ` opacity="${(movable||isPos)?1:0.55}"`;
+      svg+=`<image href="${icon}" xlink:href="${icon}" x="${n.x-d/2}" y="${n.y-d/2}" width="${d}" height="${d}" preserveAspectRatio="xMidYMid meet"${fx}/>`;
+    } else {                                     // respaldo: círculo + etiqueta (comportamiento previo)
+      svg+=`<circle cx="${n.x}" cy="${n.y}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"${active?` style="filter:drop-shadow(0 0 5px ${t.color})"`:` opacity="${(movable||isPos)?1:0.6}"`}/>`;
+      svg+=`<text x="${n.x}" y="${n.y+3.5}" text-anchor="middle" font-family="'Spline Sans Mono',monospace" font-size="${t.grp==='lock'?11:9.5}" font-weight="700" fill="${txtc}" pointer-events="none">${lab}</text>`;
+    }
+    if(isPos){                                   // indicador de posición actual (encima del icono)
       svg+=`<circle cx="${n.x}" cy="${n.y}" r="${r+6}" fill="none" stroke="${accent}" stroke-width="2.5" stroke-dasharray="4 3" style="filter:drop-shadow(0 0 4px ${accent})"><animateTransform attributeName="transform" type="rotate" from="0 ${n.x} ${n.y}" to="360 ${n.x} ${n.y}" dur="12s" repeatCount="indefinite"/></circle>`;
     }
-    svg+=`<text x="${n.x}" y="${n.y+3.5}" text-anchor="middle" font-family="'Spline Sans Mono',monospace" font-size="${t.grp==='lock'?11:9.5}" font-weight="700" fill="${txtc}" pointer-events="none">${lab}</text>`;
     svg+=`<title>${title}</title></g>`;
   });
   svg+=`</svg>`;
@@ -2115,6 +2184,86 @@ document.getElementById("boardReset").addEventListener("click",()=>{
 document.getElementById("boardEditToggle").addEventListener("click", startSupresora);
 document.querySelectorAll("[data-sphere-act]").forEach(b=>b.addEventListener("click",()=>armSphere(b.dataset.sphereAct)));
 document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ if(armedSphere) cancelArm(); else if(supresoraNode) closeSupresoraPanel(); } });
+
+/* ---------- Calculadoras rápidas (suman +/- a HP, MP o Carga) ----------
+   El valor tecleado es transitorio: vive solo en el DOM, nunca en `state`,
+   por lo que no se exporta ni se interpreta al importar. */
+function applyVitalDelta(key, inputEl, label){
+  if(!inputEl) return;
+  if(inputEl.value.trim()===""){ flashNote("Escribe un valor para sumar"); return; }
+  const d=num(inputEl.value);
+  const before=num(state[key]);
+  const after=Math.max(0, before+d);
+  state[key]=after;
+  const field=document.querySelector(`[data-vital="${key}"]`); if(field) field.value=after;
+  recompute(); saveState(true);
+  inputEl.value="";
+  flashNote(`${label}: ${before} ${d>=0?"+":"−"} ${Math.abs(d)} = ${after}`);
+}
+function applyCargaDelta(inputEl){
+  if(!inputEl) return;
+  ensureFree();
+  if(inputEl.value.trim()===""){ flashNote("Escribe un valor para sumar"); return; }
+  const d=num(inputEl.value);
+  const before=num(state.turbo.carga);
+  const after=clampCarga(before+d);
+  state.turbo.carga=after;
+  const cc=document.getElementById("turboCargaCur"); if(cc) cc.value=after;
+  updateTurboGlow(); saveState(true);
+  inputEl.value="";
+  const max=num(state.turbo.cargaMax);
+  let msg=`Carga: ${before} ${d>=0?"+":"−"} ${Math.abs(d)} = ${after}`;
+  if(max>0 && before+d>max) msg+=" (máx.)";
+  flashNote(msg);
+}
+function wireCalc(btnId, run){
+  const btn=document.getElementById(btnId); if(!btn) return;
+  const input=btn.previousElementSibling;          // el input justo antes del botón
+  btn.addEventListener("click",()=>run(input));
+  if(input) input.addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); run(input); } });
+}
+wireCalc("hpCalcBtn", el=>applyVitalDelta("hp_cur", el, "HP"));
+wireCalc("mpCalcBtn", el=>applyVitalDelta("mp_cur", el, "MP"));
+wireCalc("cargaCalcBtn", el=>applyCargaDelta(el));
+
+/* Botón «Usar» de Turbo: solo disponible al alcanzar la carga máxima; reinicia la carga a 0. */
+function useTurbo(){
+  ensureFree();
+  const cur=num(state.turbo.carga), max=num(state.turbo.cargaMax);
+  if(!(max>0)){ flashNote("Define primero la carga máxima"); return; }
+  if(cur<max){ flashNote(`Turbo sin cargar (${cur}/${max})`); return; }
+  state.turbo.carga=0;
+  const cc=document.getElementById("turboCargaCur"); if(cc) cc.value=0;
+  updateTurboGlow(); saveState(true);
+  flashNote("¡Turbo usado! Carga reiniciada a 0");
+}
+const turboUseBtn=document.getElementById("turboUseBtn");
+if(turboUseBtn) turboUseBtn.addEventListener("click", useTurbo);
+
+/* ---------- Botón «Usar»: resta el coste de MP de la fila al MP actual ----------
+   Lee el MP de la propia fila: input editable (Mago Azul, Turbo, Offclass) o
+   valor fijo (técnicas, Mago Blanco, Mago Negro). Si no hay MP escrito, no hace nada. */
+function rowMPCost(tr){
+  const cell=tr.querySelector(".mp-cell"); if(!cell) return "";
+  const inp=cell.querySelector("input");
+  if(inp) return inp.value.trim();           // tablas con MP editable (Azul/Turbo/Off)
+  const b=cell.querySelector("b");
+  return b ? b.textContent.trim() : "";      // tablas de coste fijo (técnicas/Blanco/Negro)
+}
+document.addEventListener("click", e=>{
+  const btn=e.target.closest(".use-btn"); if(!btn) return;
+  const tr=btn.closest("tr"); if(!tr) return;
+  const raw=rowMPCost(tr);
+  if(raw==="") return;                        // sin valor de MP escrito -> no hacer nada
+  const cost=Math.round(num(raw));
+  if(!(cost>0)) return;                       // 0 o no numérico -> nada que gastar
+  const cur=num(state.mp_cur);
+  if(cost>cur){ flashNote(`MP insuficiente: necesitas ${cost}, tienes ${cur}`); return; }
+  state.mp_cur=cur-cost;
+  const field=document.querySelector('[data-vital="mp_cur"]'); if(field) field.value=state.mp_cur;
+  recompute(); saveState(true);
+  flashNote(`Usado · −${cost} MP (${cur} → ${state.mp_cur})`);
+});
 
 /* ---------- Init ---------- */
 function renderAll(){
