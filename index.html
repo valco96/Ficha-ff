@@ -1971,10 +1971,10 @@ function renderBoard(){
     svg+=`<g class="${cls}" data-node="${n.id}">`;
     if(icon){                                    // relleno por icono PNG (activado/desactivado)
       const d=r*ICON_SCALE;
-      const fx = active ? ` style="filter:drop-shadow(0 0 5px ${t.color})"` : ` opacity="${(movable||isPos)?1:0.55}"`;
+      const fx = active ? "" : ` opacity="${(movable||isPos)?1:0.55}"`;
       svg+=`<image href="${icon}" xlink:href="${icon}" x="${n.x-d/2}" y="${n.y-d/2}" width="${d}" height="${d}" preserveAspectRatio="xMidYMid meet"${fx}/>`;
       if(active){                                // borde resaltado de color personalizado, por encima del icono
-        svg+=`<circle cx="${n.x}" cy="${n.y}" r="${d/2-1}" fill="none" stroke="${accent}" stroke-width="2.5" style="filter:drop-shadow(0 0 4px ${accent})"/>`;
+        svg+=`<circle cx="${n.x}" cy="${n.y}" r="${d/2-1}" fill="none" stroke="${accent}" stroke-width="2.5"/>`;
       }
     } else {                                     // respaldo: círculo + etiqueta (comportamiento previo)
       svg+=`<circle cx="${n.x}" cy="${n.y}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"${active?` style="filter:drop-shadow(0 0 5px ${t.color})"`:` opacity="${(movable||isPos)?1:0.6}"`}/>`;
