@@ -12,12 +12,11 @@ estados: activado (`on`) y desactivado (`off`).
 ├── .nojekyll                  ← evita que GitHub Pages procese/ignore carpetas
 ├── README.md
 └── assets/
-    └── nodos/
-        ├── on/                ← nodo activado
-        │   ├── fue.png vit.png agi.png vel.png int.png vol.png
-        │   ├── tec.png hab.png mbl.png mne.png
-        │   └── bloqueo-1.png bloqueo-2.png bloqueo-3.png bloqueo-4.png
-        └── off/               ← nodo desactivado (mismos nombres)
+    ├── on/                    ← nodo activado
+    │   ├── fue.png vit.png agi.png vel.png int.png vol.png
+    │   ├── tec.png hab.png mbl.png mne.png
+    │   └── bloqueo-1.png bloqueo-2.png bloqueo-3.png bloqueo-4.png
+    └── off/                   ← nodo desactivado (mismos nombres)
 ```
 
 Todos los iconos están normalizados a **256×256 px**, fondo transparente.
@@ -28,7 +27,7 @@ Todos los iconos están normalizados a **256×256 px**, fondo transparente.
 2. *Settings → Pages →* Source: **Deploy from a branch**, rama `main`, carpeta `/ (root)`.
 3. La ficha queda en `https://TU-USUARIO.github.io/TU-REPO/`.
 
-> Las rutas de los iconos son **relativas** (`assets/nodos/on/fue.png`), así que
+> Las rutas de los iconos son **relativas** (`assets/on/fue.png`), así que
 > funcionan tanto en local (abriendo `index.html`) como en un *project site* bajo
 > `/TU-REPO/`. No uses rutas absolutas con `/` inicial.
 
