@@ -217,6 +217,17 @@
   .vcalc button:hover{border-color:var(--cyan);color:var(--cyan)}
   .gauge.hp .vcalc button:hover{border-color:var(--hp);color:var(--hp)}
   .gauge.mp .vcalc button:hover{border-color:var(--mp2);color:var(--mp2)}
+  .aux-calc{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px;padding:12px 14px;
+    background:rgba(6,12,30,.55);border:1px solid var(--edge-soft);border-radius:var(--radius)}
+  .aux-calc input#auxCalcNum{width:80px;text-align:center;font-family:'Spline Sans Mono',monospace}
+  .aux-calc select#auxCalcAttr{width:88px;padding-right:24px}
+  .aux-calc .aux-op{color:var(--ink-dim);font-weight:700;font-family:'Spline Sans Mono',monospace}
+  .aux-calc .aux-res{min-width:70px;text-align:center;font-family:'Spline Sans Mono',monospace;font-weight:700;
+    color:#8fe3c0;padding:7px 10px;background:rgba(6,12,30,.6);border:1px solid var(--edge-soft);border-radius:6px}
+  .aux-calc .aux-btn{font-family:'Cinzel',serif;font-weight:600;font-size:.72rem;letter-spacing:.04em;cursor:pointer;
+    border-radius:6px;padding:8px 13px;border:1px solid var(--edge-soft);background:rgba(12,22,52,.6);color:var(--ink-dim);transition:.15s;white-space:nowrap}
+  .aux-calc .aux-btn.hp:hover{border-color:var(--hp);color:var(--hp)}
+  .aux-calc .aux-btn.mp:hover{border-color:var(--mp2);color:var(--mp2)}
 
   /* tables */
   .tbl-scroll{overflow-x:auto;border-radius:var(--radius)}
@@ -246,6 +257,12 @@
   .skill-row .sk-name{flex:1;font-size:.84rem}
   .skill-row .sk-name small{color:var(--cyan);font-weight:600}
   .skill-row input{width:58px;text-align:center;padding:5px}
+  .fskill-list{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+  .fskill-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(136,176,230,.1)}
+  .fskill-row .fs-name{flex:1 1 auto;width:auto;min-width:0;font-size:.84rem;padding:7px 9px}
+  .fskill-row .fs-attr{flex:0 0 auto;width:80px;font-size:.8rem;padding:7px 22px 7px 8px}
+  .fskill-row .sk-def{flex:0 0 auto;min-width:30px;text-align:center;font-family:'Spline Sans Mono',monospace;font-size:.8rem}
+  .fskill-row input.num{flex:0 0 auto;width:58px;text-align:center;padding:5px}
 
   /* magic */
   .magic-head{display:flex;align-items:center;gap:10px;margin:20px 0 10px}
@@ -473,6 +490,11 @@
       </div>
       <div id="attrFormulas" class="formulas-box"></div>
     </div>
+
+    <div class="win pad" style="margin-top:16px">
+      <h2 class="section-title">Notas</h2>
+      <textarea id="notesBox" class="inv-box" placeholder="Texto libre: trasfondo, recordatorios, objetos clave, lo que quieras anotar…"></textarea>
+    </div>
   </section>
 
   <!-- ============ EQUIPO ============ -->
@@ -507,6 +529,26 @@
       <h2 class="section-title" style="margin-top:26px">Inventario</h2>
       <textarea id="invBox" class="inv-box" placeholder="Objetos, consumibles, gilles, materiales, llaves… escribe libremente aquí."></textarea>
       <p class="hint">Todo el equipo y el inventario se guardan automáticamente en la ficha.</p>
+
+      <h2 class="section-title" style="margin-top:26px">Calculadora auxiliar</h2>
+      <p class="hint" style="margin-top:-2px">Número × atributo (igual que el daño de las armas). Es un cálculo de un solo uso: <b>no se guarda</b> en la ficha. Los botones suman el resultado al HP o MP actual de la pestaña Personaje (sin pasar del máximo).</p>
+      <div class="aux-calc">
+        <input class="num" type="number" min="0" id="auxCalcNum" placeholder="nº" inputmode="numeric" aria-label="Número">
+        <span class="aux-op">×</span>
+        <select id="auxCalcAttr" aria-label="Atributo">
+          <option value="">— atributo —</option>
+          <option value="FUE">FUE · Fuerza</option>
+          <option value="VIT">VIT · Vitalidad</option>
+          <option value="AGI">AGI · Agilidad</option>
+          <option value="VEL">VEL · Velocidad</option>
+          <option value="INT">INT · Intelecto</option>
+          <option value="VOL">VOL · Voluntad</option>
+        </select>
+        <span class="aux-op">=</span>
+        <span class="aux-res" id="auxCalcRes">—</span>
+        <button type="button" class="aux-btn hp" id="auxRecoverHP">Recuperar HP</button>
+        <button type="button" class="aux-btn mp" id="auxRecoverMP">Recuperar MP</button>
+      </div>
     </div>
   </section>
 
@@ -516,6 +558,9 @@
       <h2 class="section-title">Habilidades · Rango</h2>
       <div id="skillXP" class="hint" style="margin:-4px 0 12px;font-size:14px">XP disponible para gastar en habilidades: <b style="color:#f0d27a" id="skillXPval">0</b></div>
       <div class="skill-cols" id="skillCols" style="column-count:3"></div>
+      <h3 class="section-title" style="margin-top:20px;font-size:1.05rem">Habilidades libres</h3>
+      <div class="hint" style="margin:-4px 0 10px">Habilidades genéricas: ponles el nombre que quieras. Si eliges un atributo, su Default se calcula igual que en el resto (Rango ÷ 2).</div>
+      <div id="freeSkills" class="fskill-list"></div>
     </div>
   </section>
 
@@ -1113,13 +1158,14 @@ function blankState(){
     hp_cur:0,mp_cur:0,
     breakHP:false,breakMP:false,
     eva_base:0,evam_base:0,arm_base:0,armm_base:0,hab_arma:0,
-    habArmaSel:"",
+    habArmaSel:"", notes:"",
     attrs:{}, dvBonus:{}, skills:{}, black:{}, blue:{}, spheres:{}, abil:{}, tec:{}, white:{},
     equip:{armor:{}, weapons:{}, inv:""}
   };
   ATTRS.forEach(a=>s.attrs[a.k]={base:0,bonus:0});
   ATTRS.forEach(a=>s.dvBonus[a.k]=0);
   SKILLS.forEach(([n])=>s.skills[n]=0);
+  s.freeSkills=Array.from({length:6},()=>({name:"",attr:"",rank:0}));
   BLACK.forEach(([rama])=>s.black[rama]=false);
   BLUE.forEach(([rama])=>s.blue[rama]={on:false,text:"",coef:"",attr:"",mp:""});
   TEC_ORDER.forEach(c=>TEC_DATA[c].forEach(([rama])=>s.tec[rama]=false));
@@ -1181,7 +1227,7 @@ function sphereBonusAll(){
   (state.active||[]).forEach(id=>{ const t=NODE[nodeType(id)]; if(t&&t.grp==="stat") b[t.attr]+=1; });
   return b;
 }
-const total = k => num(state.attrs[k].base)+num(state.attrs[k].bonus)+(SB[k]||0);
+const total = k => Math.floor(num(state.attrs[k].base)+num(state.attrs[k].bonus)+(SB[k]||0));
 const rango = k => Math.min(100, total(k)*3+10);
 
 function derivedValue(k){
@@ -1195,7 +1241,7 @@ function derivedValue(k){
     case "VOL": return t("INT")*4+100;                                       // PUN M.
   }
 }
-const fmt = n => Number.isInteger(n)?n:(Math.round(n*100)/100);
+const fmt = n => Math.floor(num(n));
 
 /* ---- Coste de MP y fórmulas (4 × ATR) en las tablas de clase ---- */
 const FATTR = "FUE|VIT|AGI|VEL|INT|VOL";
@@ -1249,8 +1295,8 @@ function renderAttrs(){
     const tr=document.createElement("tr");
     tr.innerHTML=`
       <td>${a.k}<div class="stat-name" style="text-transform:none;font-family:'Inter'">${a.name}</div></td>
-      <td class="c"><input class="num" type="number" data-attr="${a.k}" data-f="base" value="${state.attrs[a.k].base}"></td>
-      <td class="c"><input class="num" type="number" data-attr="${a.k}" data-f="bonus" value="${state.attrs[a.k].bonus}"></td>
+      <td class="c"><input class="num" type="number" data-attr="${a.k}" data-f="base" value="${Math.floor(num(state.attrs[a.k].base))}"></td>
+      <td class="c"><input class="num" type="number" data-attr="${a.k}" data-f="bonus" value="${Math.floor(num(state.attrs[a.k].bonus))}"></td>
       <td class="c"><span class="ro" id="tot-${a.k}"></span><span class="esf" id="esf-${a.k}"></span></td>
       <td class="c"><span class="ro" id="rng-${a.k}"></span></td>
       <td class="c"><span class="ro" id="def-${a.k}"></span></td>
@@ -1258,7 +1304,7 @@ function renderAttrs(){
         <div class="stat-name">${d.label}</div>
         ${compHtml}
       </td>
-      <td class="c"><input class="num" type="number" data-dvbonus="${a.k}" value="${num(state.dvBonus&&state.dvBonus[a.k])}" style="width:72px"></td>
+      <td class="c"><input class="num" type="number" data-dvbonus="${a.k}" value="${Math.floor(num(state.dvBonus&&state.dvBonus[a.k]))}" style="width:72px"></td>
       <td class="c"><span class="stat-val" id="dv-${a.k}"></span></td>`;
     body.appendChild(tr);
   });
@@ -1295,6 +1341,27 @@ function renderSkills(){
     wrap.appendChild(row);
   });
   refreshSkillXP();
+}
+function ensureFreeSkills(){
+  if(!Array.isArray(state.freeSkills)) state.freeSkills=[];
+  while(state.freeSkills.length<6) state.freeSkills.push({name:"",attr:"",rank:0});
+  state.freeSkills.forEach(r=>{ if(typeof r.name!=="string") r.name=""; if(typeof r.attr!=="string") r.attr=""; r.rank=Math.max(0,Math.floor(num(r.rank))); });
+}
+function renderFreeSkills(){
+  const box=document.getElementById("freeSkills"); if(!box) return;
+  ensureFreeSkills();
+  const opts=sel=>['<option value="">—</option>'].concat(ATTRS.map(a=>`<option value="${a.k}"${a.k===sel?" selected":""}>${a.k}</option>`)).join("");
+  box.innerHTML = state.freeSkills.map((r,i)=>{
+    const def = r.attr
+      ? `<span class="sk-def" data-skgov="${r.attr}" style="color:${ATTR_COLOR[r.attr]||'var(--ink-dim)'}" title="Default de ${r.attr} (tabla de atributos)">${fmt(rango(r.attr)/2)}</span>`
+      : `<span class="sk-def" style="opacity:.4" title="Elige un atributo para calcular el Default">—</span>`;
+    return `<div class="fskill-row">`+
+      `<input class="fs-name" data-fsname="${i}" placeholder="Habilidad libre ${i+1}" value="${escHTML(r.name)}" aria-label="Nombre habilidad libre ${i+1}">`+
+      `<select class="fs-attr" data-fsattr="${i}" aria-label="Atributo habilidad libre ${i+1}">${opts(r.attr)}</select>`+
+      def+
+      `<input class="num" type="number" min="0" data-fsrank="${i}" value="${r.rank}" aria-label="Rango habilidad libre ${i+1}">`+
+      `</div>`;
+  }).join("");
 }
 function refreshSkillXP(){
   const el=document.getElementById("skillXPval"); if(el) el.textContent=num(state.xp);
@@ -1681,6 +1748,10 @@ function updateWeaponDamage(){
   });
 }
 
+/* máximos de HP/MP (con talentos y límites 999/99 salvo "Romper límite") */
+function maxHP(){ const m=Math.floor(total("VIT")*(36+(hasTalent("endurecido")?4:0))); return state.breakHP?m:Math.min(m,999); }
+function maxMP(){ const m=Math.floor(total("INT")*(4 +(hasTalent("almapura") ?2:0))); return state.breakMP?m:Math.min(m,99); }
+
 /* recalcula y pinta todos los valores derivados / vitales */
 function recompute(){
   syncDerivedComponents();
@@ -1703,11 +1774,10 @@ function recompute(){
     if(src) el.textContent=src.textContent;
   });
   updateWeaponDamage();
-  const hpMult = 36 + (hasTalent("endurecido") ? 4 : 0);
-  const mpMult = 4  + (hasTalent("almapura")  ? 2 : 0);
-  let hpMax=total("VIT")*hpMult, mpMax=total("INT")*mpMult;
-  if(!state.breakHP) hpMax=Math.min(hpMax,999);   // límite 999 HP salvo Romper límite
-  if(!state.breakMP) mpMax=Math.min(mpMax,99);    // límite 99 MP salvo Romper límite
+  const hpMax=maxHP(), mpMax=maxMP();
+  // limita el HP/MP actual al máximo (cuando existe un máximo > 0)
+  if(hpMax>0 && num(state.hp_cur)>hpMax){ state.hp_cur=hpMax; const f=document.querySelector('[data-vital="hp_cur"]'); if(f) f.value=hpMax; }
+  if(mpMax>0 && num(state.mp_cur)>mpMax){ state.mp_cur=mpMax; const f=document.querySelector('[data-vital="mp_cur"]'); if(f) f.value=mpMax; }
   const hpF=document.getElementById("hpFormula"); if(hpF) hpF.textContent = hasTalent("endurecido") ? "VIT × (36+4)" : "VIT × 36";
   const mpF=document.getElementById("mpFormula"); if(mpF) mpF.textContent = hasTalent("almapura") ? "INT × (4+2)" : "INT × 4";
   document.getElementById("hpMax").textContent=hpMax;
@@ -1717,18 +1787,24 @@ function recompute(){
   document.getElementById("hpBar").style.width=(hpMax?Math.max(0,Math.min(100,hpc/hpMax*100)):0)+"%";
   document.getElementById("mpBar").style.width=(mpMax?Math.max(0,Math.min(100,mpc/mpMax*100)):0)+"%";
   updateFormulas();   // refresca los cálculos (4 × ATR) y el daño de Mago Azul al cambiar atributos
+  refreshAuxCalc();   // mantiene el resultado de la calculadora auxiliar al día
 }
 
 /* refleja state en los inputs simples al cargar */
 function hydrateSimple(){
-  document.querySelectorAll("[data-id]").forEach(el=>el.value=state[el.dataset.id]??"");
-  document.querySelectorAll("[data-vital]").forEach(el=>el.value=state[el.dataset.vital]??0);
+  document.querySelectorAll("[data-id]").forEach(el=>{ el.value=(el.type==="number")?Math.floor(num(state[el.dataset.id])):(state[el.dataset.id]??""); });
+  document.querySelectorAll("[data-vital]").forEach(el=>el.value=Math.floor(num(state[el.dataset.vital])));
   document.querySelectorAll("[data-break]").forEach(el=>el.checked=!!state[el.dataset.break==="mp"?"breakMP":"breakHP"]);
+  const nb=document.getElementById("notesBox"); if(nb) nb.value=state.notes||"";
 }
 
 /* ---------- Eventos ---------- */
 document.addEventListener("input", e=>{
   const t=e.target;
+  // Solo enteros: descarta cualquier parte decimal de los inputs numéricos (conserva el signo).
+  if(t.tagName==="INPUT" && t.type==="number" && t.value.indexOf(".")!==-1){
+    t.value = t.value.slice(0, t.value.indexOf("."));
+  }
   if(t.dataset.id!==undefined){ state[t.dataset.id]=t.type==="number"?num(t.value):t.value;
     if(t.dataset.id==="ud"){ const u=document.getElementById("boardUD"); if(u) u.textContent=num(state.ud)+" UD"; renderBoard(); }
     if(t.dataset.id==="xp"){ refreshSkillXP(); } }
@@ -1737,8 +1813,8 @@ document.addEventListener("input", e=>{
   else if(t.dataset.dvbonus){ if(!state.dvBonus) state.dvBonus={}; state.dvBonus[t.dataset.dvbonus]=num(t.value); recompute(); }
   else if(t.dataset.comp){ state[t.dataset.comp]=num(t.value); recompute(); }
   else if(t.dataset.skill){
-    const key=t.dataset.skill, oldVal=Math.max(0,Math.round(num(state.skills[key])));
-    let newVal=Math.max(0,Math.round(num(t.value)));
+    const key=t.dataset.skill, oldVal=Math.max(0,Math.floor(num(state.skills[key])));
+    let newVal=Math.max(0,Math.floor(num(t.value)));
     let delta=newVal-oldVal;                       // + gasta XP, - reembolsa XP
     if(delta>0){
       const avail=Math.max(0,num(state.xp));
@@ -1750,7 +1826,7 @@ document.addEventListener("input", e=>{
     refreshSkillXP();
     recompute();
   }
-  else if(t.dataset.sphere){ state.spheres[t.dataset.sphere]=Math.max(0,Math.round(num(t.value))); if(typeof updateSphereButtons==="function") updateSphereButtons(); }
+  else if(t.dataset.sphere){ state.spheres[t.dataset.sphere]=Math.max(0,Math.floor(num(t.value))); if(typeof updateSphereButtons==="function") updateSphereButtons(); }
   else if(t.dataset.blueText){ ensureBlue(); state.blue[t.dataset.blueText].text=t.value; }
   else if(t.dataset.blueCoef){ ensureBlue(); state.blue[t.dataset.blueCoef].coef=t.value; updateFormulas(); }
   else if(t.dataset.blueMp){ ensureBlue(); state.blue[t.dataset.blueMp].mp=t.value; }
@@ -1774,6 +1850,24 @@ document.addEventListener("input", e=>{
   else if(t.dataset.offText!==undefined){ ensureFree(); state.offclass.rows[+t.dataset.offText].text=t.value; }
   else if(t.dataset.offCoef!==undefined){ ensureFree(); state.offclass.rows[+t.dataset.offCoef].coef=t.value; updateFormulas(); }
   else if(t.dataset.offMp!==undefined){ ensureFree(); state.offclass.rows[+t.dataset.offMp].mp=t.value; }
+  else if(t.id==="notesBox"){ state.notes=t.value; }
+  else if(t.dataset.fsname!==undefined){ ensureFreeSkills(); state.freeSkills[+t.dataset.fsname].name=t.value; }
+  else if(t.dataset.fsrank!==undefined){
+    ensureFreeSkills();
+    const row=state.freeSkills[+t.dataset.fsrank];
+    const oldVal=Math.max(0,Math.floor(num(row.rank)));
+    let newVal=Math.max(0,Math.floor(num(t.value)));
+    let delta=newVal-oldVal;                        // + gasta XP, - reembolsa XP
+    if(delta>0){
+      const avail=Math.max(0,num(state.xp));
+      if(delta>avail){ delta=avail; newVal=oldVal+delta; t.value=newVal; flashNote("XP insuficiente"); }
+    }
+    row.rank=newVal;
+    state.xp=num(state.xp)-delta;
+    const xpEl=document.querySelector('[data-id="xp"]'); if(xpEl) xpEl.value=state.xp;
+    refreshSkillXP();
+    recompute();
+  }
   else return;
   saveState(true);
 });
@@ -1791,6 +1885,7 @@ document.addEventListener("change", e=>{
   else if(t.dataset.turboAttr!==undefined){ ensureFree(); state.turbo.rows[+t.dataset.turboAttr].attr=t.value; updateFormulas(); saveState(true); }
   else if(t.dataset.offOn!==undefined){ ensureFree(); state.offclass.rows[+t.dataset.offOn].on=t.checked; saveState(true); }
   else if(t.dataset.offAttr!==undefined){ ensureFree(); state.offclass.rows[+t.dataset.offAttr].attr=t.value; updateFormulas(); saveState(true); }
+  else if(t.dataset.fsattr!==undefined){ ensureFreeSkills(); state.freeSkills[+t.dataset.fsattr].attr=t.value; renderFreeSkills(); recompute(); saveState(true); }
 });
 document.addEventListener("click", e=>{
   const inc=e.target.dataset.sphInc, dec=e.target.dataset.sphDec;
@@ -2197,7 +2292,9 @@ function applyVitalDelta(key, inputEl, label){
   if(inputEl.value.trim()===""){ flashNote("Escribe un valor para sumar"); return; }
   const d=num(inputEl.value);
   const before=num(state[key]);
-  const after=Math.max(0, before+d);
+  const cap = key==="hp_cur" ? maxHP() : key==="mp_cur" ? maxMP() : 0;
+  let after=Math.max(0, before+d);
+  if(cap>0) after=Math.min(after, cap);
   state[key]=after;
   const field=document.querySelector(`[data-vital="${key}"]`); if(field) field.value=after;
   recompute(); saveState(true);
@@ -2230,6 +2327,42 @@ wireCalc("hpCalcBtn", el=>applyVitalDelta("hp_cur", el, "HP"));
 wireCalc("mpCalcBtn", el=>applyVitalDelta("mp_cur", el, "MP"));
 wireCalc("cargaCalcBtn", el=>applyCargaDelta(el));
 
+/* ---------- Calculadora auxiliar (Equipo): número × atributo ----------
+   Transitoria: lee sus propios inputs del DOM, nunca toca `state`, así que no
+   se exporta ni se importa. Los botones suman el resultado al HP/MP actual. */
+function auxCalcRaw(){
+  const numEl=document.getElementById("auxCalcNum"), attrEl=document.getElementById("auxCalcAttr");
+  if(!numEl||!attrEl) return null;
+  const a=attrEl.value;
+  if(!a || !ATTRS.some(x=>x.k===a) || numEl.value.trim()==="") return null;
+  return num(numEl.value)*total(a);
+}
+function refreshAuxCalc(){
+  const res=document.getElementById("auxCalcRes"); if(!res) return;
+  const v=auxCalcRaw();
+  res.textContent = v==null ? "—" : fmt(v);
+}
+function auxRecover(key,label){
+  const raw=auxCalcRaw();
+  if(raw==null){ flashNote("Escribe un número y elige un atributo"); return; }
+  const add=Math.floor(raw);
+  const before=num(state[key]);
+  const cap = key==="hp_cur" ? maxHP() : maxMP();
+  let after=before+add; if(cap>0) after=Math.min(after,cap); after=Math.max(0,after);
+  state[key]=after;
+  const field=document.querySelector(`[data-vital="${key}"]`); if(field) field.value=after;
+  recompute(); saveState(true);
+  flashNote(`${label}: ${before} + ${add} = ${after}${(cap>0 && before+add>cap) ? " (máx.)" : ""}`);
+}
+(function wireAuxCalc(){
+  const n=document.getElementById("auxCalcNum"), a=document.getElementById("auxCalcAttr");
+  if(n) n.addEventListener("input", refreshAuxCalc);
+  if(a) a.addEventListener("change", refreshAuxCalc);
+  const bHP=document.getElementById("auxRecoverHP"); if(bHP) bHP.addEventListener("click",()=>auxRecover("hp_cur","HP"));
+  const bMP=document.getElementById("auxRecoverMP"); if(bMP) bMP.addEventListener("click",()=>auxRecover("mp_cur","MP"));
+  refreshAuxCalc();
+})();
+
 /* Botón «Usar» de Turbo: solo disponible al alcanzar la carga máxima; reinicia la carga a 0. */
 function useTurbo(){
   ensureFree();
@@ -2259,7 +2392,7 @@ document.addEventListener("click", e=>{
   const tr=btn.closest("tr"); if(!tr) return;
   const raw=rowMPCost(tr);
   if(raw==="") return;                        // sin valor de MP escrito -> no hacer nada
-  const cost=Math.round(num(raw));
+  const cost=Math.floor(num(raw));
   if(!(cost>0)) return;                       // 0 o no numérico -> nada que gastar
   const cur=num(state.mp_cur);
   if(cost>cur){ flashNote(`MP insuficiente: necesitas ${cost}, tienes ${cur}`); return; }
@@ -2273,7 +2406,7 @@ document.addEventListener("click", e=>{
 function renderAll(){
   hydrateSimple();
   ensureAbil();
-  renderAttrs(); renderSkills(); renderBlack(); renderBlue(); renderWhite(); renderTec(); renderEquip(); renderSpheres(); renderBoard(); renderFree(); renderTalents();
+  renderAttrs(); renderSkills(); renderFreeSkills(); renderBlack(); renderBlue(); renderWhite(); renderTec(); renderEquip(); renderSpheres(); renderBoard(); renderFree(); renderTalents();
   recompute();
 }
 renderAll();
