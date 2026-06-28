@@ -46,7 +46,7 @@ Todos los iconos están normalizados a **256×256 px**, fondo transparente.
 
 - **Cambiar un icono:** sustituye el PNG correspondiente en `on/` y/o `off/`
   conservando el nombre. Ideal 256×256, fondo transparente.
-- **Tamaño del icono en el tablero:** edita `const ICON_SCALE = 2.45;` en
+- **Tamaño del icono en el tablero:** edita `const ICON_SCALE = 1.8;` en
   `index.html` (mayor = icono más grande respecto al nodo).
 - **Volver a los círculos de color:** si `nodeIcon()` devuelve `null` para un tipo
   (p. ej. borrando su entrada en `ICON_FILE`), ese nodo vuelve a dibujarse con el

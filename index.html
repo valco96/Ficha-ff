@@ -357,6 +357,7 @@
   .board-legend{display:flex;flex-wrap:wrap;gap:7px 14px;margin-bottom:8px;font-size:.66rem;color:var(--ink-dim)}
   .board-legend span{display:inline-flex;align-items:center;gap:5px}
   .board-legend i{width:12px;height:12px;border-radius:50%;display:inline-block;border:1px solid rgba(255,255,255,.25)}
+  .board-legend img{width:20px;height:20px;object-fit:contain;display:inline-block;filter:drop-shadow(0 0 2px rgba(0,0,0,.55))}
   .board-track{overflow:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--edge-soft);border-radius:var(--radius);background:rgba(5,10,26,.55);margin:6px 0 14px;max-height:72vh}
   .board-track.editing{outline:2px dashed var(--mag);outline-offset:-2px}
   .board-svg{display:block}
@@ -915,7 +916,7 @@ const NODE = {
    Rutas RELATIVAS para que funcionen en GitHub Pages (usuario.github.io/repo/).
    ICON_SCALE controla el tamaño del icono respecto al radio del nodo. */
 const ICON_BASE  = "assets/";
-const ICON_SCALE = 2.45;
+const ICON_SCALE = 1.8;
 const ICON_FILE  = { FUE:"fue", VIT:"vit", AGI:"agi", VEL:"vel", INT:"int",
                      VOL:"vol", TEC:"tec", HAB:"hab", MBL:"mbl", MNE:"mne" };
 function nodeIcon(ty, level, on){
@@ -1937,7 +1938,7 @@ function renderBoard(){
   const sel=document.getElementById("boardClass");
   if(sel){ sel.value=ROW_ORDER[curRow]; sel.disabled=classLocked; sel.title=classLocked?"Clase fijada: el nodo inicial ya está activado":""; }
   document.getElementById("boardLegend").innerHTML =
-    Object.keys(NODE).map(k=>`<span><i style="background:${NODE[k].color}"></i>${NODE[k].lbl}</span>`).join("");
+    Object.keys(NODE).map(k=>`<span><img src="${nodeIcon(k,1,true)}" alt="">${NODE[k].lbl}</span>`).join("");
 
   const start=startId();
   const pos=state.pos;
@@ -1972,6 +1973,9 @@ function renderBoard(){
       const d=r*ICON_SCALE;
       const fx = active ? ` style="filter:drop-shadow(0 0 5px ${t.color})"` : ` opacity="${(movable||isPos)?1:0.55}"`;
       svg+=`<image href="${icon}" xlink:href="${icon}" x="${n.x-d/2}" y="${n.y-d/2}" width="${d}" height="${d}" preserveAspectRatio="xMidYMid meet"${fx}/>`;
+      if(active){                                // borde resaltado de color personalizado, por encima del icono
+        svg+=`<circle cx="${n.x}" cy="${n.y}" r="${d/2-1}" fill="none" stroke="${accent}" stroke-width="2.5" style="filter:drop-shadow(0 0 4px ${accent})"/>`;
+      }
     } else {                                     // respaldo: círculo + etiqueta (comportamiento previo)
       svg+=`<circle cx="${n.x}" cy="${n.y}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"${active?` style="filter:drop-shadow(0 0 5px ${t.color})"`:` opacity="${(movable||isPos)?1:0.6}"`}/>`;
       svg+=`<text x="${n.x}" y="${n.y+3.5}" text-anchor="middle" font-family="'Spline Sans Mono',monospace" font-size="${t.grp==='lock'?11:9.5}" font-weight="700" fill="${txtc}" pointer-events="none">${lab}</text>`;
