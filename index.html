@@ -122,6 +122,23 @@
   .turbo-carga.ready .turbo-use{border-color:#ff9a3c;color:#2a1402;
     background:linear-gradient(180deg,#ffb061,#ff8a2c);box-shadow:0 0 14px rgba(255,140,50,.5)}
   .turbo-carga.ready .turbo-use:hover{filter:brightness(1.08)}
+  /* Botón Activar / Desactivar turbo */
+  .turbo-carga .turbo-use.on{border-color:#ff9a3c;color:#2a1402;
+    background:linear-gradient(180deg,#ffb061,#ff8a2c);box-shadow:0 0 14px rgba(255,140,50,.55)}
+  /* Sección de bonus de Turbo */
+  .turbo-bonus{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:4px 18px;margin:6px 0 16px}
+  .tb-row{display:flex;align-items:center;gap:8px;padding:5px 2px;border-bottom:1px solid rgba(136,176,230,.1)}
+  .tb-name{flex:0 0 54px;font-family:'Cinzel',serif;font-weight:600;font-size:.78rem;color:var(--gold)}
+  .tb-in{width:60px;text-align:center;padding:5px;flex:0 0 auto}
+  .tb-tot{flex:1 1 auto;text-align:right;font-family:'Spline Sans Mono',monospace;font-weight:700;color:#8fe3c0;min-width:40px}
+  /* Modo Turbo activado: fondo naranja en todo el render */
+  body.turbo-active{
+    background:
+      radial-gradient(1100px 600px at 78% -8%, rgba(255,165,70,0.38), transparent 60%),
+      radial-gradient(900px 700px at 8% 12%, rgba(255,120,40,0.30), transparent 55%),
+      linear-gradient(180deg,#7a3a0c 0%,#864310 50%,#5e2e08 100%);
+    background-attachment:fixed;
+  }
 
   /* ---------- Talentos ---------- */
   .talent-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-top:6px}
@@ -455,7 +472,7 @@
 
     <div class="grid vitals">
       <div class="win gauge hp">
-        <div class="top"><b>HP</b><span class="formula" id="hpFormula">VIT × 36</span></div>
+        <div class="top"><b>HP</b><span class="formula" id="hpFormula">VIT × 34</span></div>
         <div class="bar"><i id="hpBar"></i></div>
         <div class="nums">
           <input class="num" type="number" data-vital="hp_cur" value="0"> <span class="max">/ <b id="hpMax">0</b></span>
@@ -614,10 +631,18 @@
         <span class="tc-sep">/</span>
         <input class="num" type="number" min="0" inputmode="numeric" data-turbo-carga="max" id="turboCargaMax" placeholder="0">
         <span class="tc-state" id="turboCargaState">—</span>
-        <button type="button" id="turboUseBtn" class="turbo-use" title="Disponible al alcanzar la carga máxima. Reinicia la carga a 0.">Usar</button>
+        <button type="button" id="turboUseBtn" class="turbo-use" title="Activa el Turbo (requiere carga máxima). Vuelve a pulsar para desactivar y consumir la carga.">Activar</button>
       </div>
       <div class="vcalc"><span class="vcalc-lbl">± Carga</span><input class="num" type="number" inputmode="numeric" id="cargaCalc" placeholder="±0"><button type="button" id="cargaCalcBtn">Confirmar</button></div>
       <textarea id="turboBox" class="inv-box" placeholder="Notas libres de Turbo… escribe lo que quieras aquí."></textarea>
+
+      <h2 class="section-title" style="margin-top:22px">Atributos y derivados · bonus de Turbo</h2>
+      <p class="hint" style="margin-top:-2px">Indica el bonus que el Turbo aporta a cada valor. El <b>total = total final de Personaje + bonus</b> (incluye «Romper límite» en HP/MP). Con el Turbo activado, estos valores se usan en todos los cálculos.</p>
+      <div style="display:flex;gap:18px;flex-wrap:wrap;margin:0 0 10px">
+        <label class="brk" title="Rompe el límite de 999 HP mientras el Turbo está activo"><input type="checkbox" data-turbobreak="hp"> Romper límite HP (en Turbo)</label>
+        <label class="brk" title="Rompe el límite de 99 MP mientras el Turbo está activo"><input type="checkbox" data-turbobreak="mp"> Romper límite MP (en Turbo)</label>
+      </div>
+      <div class="turbo-bonus" id="turboBonus"></div>
       <div class="tbl-scroll" style="margin-top:16px">
         <table class="spell-tbl">
           <thead><tr><th style="width:42px">Act.</th><th style="width:130px">Nombre</th><th>Habilidad / descripción</th><th style="width:170px">Daño (nº × atributo)</th><th style="width:60px">MP</th><th style="width:64px">Usar</th></tr></thead>
@@ -750,6 +775,17 @@ const DERIVED = {
   VOL:{label:"PUN M.", desc:"INT × 4 + 100", comp:null, compLabel:null},
 };
 
+/* Bonus de Turbo: stats que muestra/calcula la sección de Turbo y su orden */
+const TURBO_STATS = [
+  {k:"HP",label:"HP"},{k:"MP",label:"MP"},
+  {k:"FUE",label:"FUE"},{k:"VIT",label:"VIT"},{k:"VOL",label:"VOL"},
+  {k:"INT",label:"INT"},{k:"AGI",label:"AGI"},{k:"VEL",label:"VEL"},
+  {k:"ARM",label:"ARM"},{k:"ARMM",label:"ARM M."},{k:"EVA",label:"EVA"},{k:"EVAM",label:"EVA M."},
+  {k:"PUN",label:"PUN"},{k:"PUNM",label:"PUN M."}
+];
+/* atributo -> stat derivado que se muestra en su fila */
+const DERIVED_STAT = {FUE:"EVA", VIT:"EVAM", AGI:"ARM", VEL:"ARMM", INT:"PUN", VOL:"PUNM"};
+
 /* Componentes del stat derivado que se rellenan automáticamente sumando la pestaña Equipo */
 const COMP_FROM_ARMOR = { eva_base:"eva", evam_base:"evam", arm_base:"arm", armm_base:"armm" };
 /* Habilidades de arma válidas para la puntería (se leen de la pestaña Habilidades) */
@@ -827,7 +863,7 @@ const TALENTS = [
   {id:"buenafortuna", name:"Buena Fortuna", cost:10, repeatable:true,
    desc:"Repite cualquier tirada de un dado, una vez por uso. Las tiradas no usadas no se acumulan."},
   {id:"endurecido", name:"Endurecido", cost:10,
-   desc:"Puntos de Vida extra por VIT: +4 HP."},
+   desc:"Puntos de Vida extra por VIT: +6 HP."},
   {id:"cazamonstruos", name:"Cazamonstruos", cost:30, repeatable:true, spec:{type:"list", label:"Tipo de monstruo", options:MONSTER_TYPES},
    desc:"+100% de daño con cada Acción de Ataque contra un tipo de monstruo declarado. No se puede elegir Anormal como Categoría."},
   {id:"elemento", name:"Elemento Personal", cost:30, repeatable:true, spec:{type:"list", label:"Elemento", options:ELEMENTS},
@@ -1174,7 +1210,7 @@ function blankState(){
   WEAPON_SLOTS.forEach(k=>s.equip.weapons[k]={nombre:"",tipo:"",dano:"",danoAttr:"",ef:""});
   SPHERES.forEach(([n])=>s.spheres[n]=0);
   ABIL_CLASSES.forEach(c=>{ s.abil[c]=Array.from({length:12},()=>({on:false,n:"",e:""})); });
-  s.turbo={text:"", carga:0, cargaMax:0, rows:Array.from({length:TURBO_ROWS},freeRow)};
+  s.turbo={text:"", carga:0, cargaMax:0, active:false, breakHP:false, breakMP:false, bonus:{}, rows:Array.from({length:TURBO_ROWS},freeRow)};
   s.offclass={rows:Array.from({length:OFF_ROWS},freeRow)};
   s.talents={owned:[]};
   s.active=[]; s.tover={}; s.zoom=1;
@@ -1227,11 +1263,14 @@ function sphereBonusAll(){
   (state.active||[]).forEach(id=>{ const t=NODE[nodeType(id)]; if(t&&t.grp==="stat") b[t.attr]+=1; });
   return b;
 }
-const total = k => Math.floor(num(state.attrs[k].base)+num(state.attrs[k].bonus)+(SB[k]||0));
+function tbonus(stat){ return num(state.turbo && state.turbo.bonus && state.turbo.bonus[stat]); }
+function turboOn(){ return !!(state.turbo && state.turbo.active); }
+const baseTotal = k => Math.floor(num(state.attrs[k].base)+num(state.attrs[k].bonus)+(SB[k]||0));
+const total = k => baseTotal(k) + (turboOn() ? tbonus(k) : 0);
+const turboTotalAttr = k => baseTotal(k) + tbonus(k);   // atributo bajo turbo (siempre, para la sección)
 const rango = k => Math.min(100, total(k)*3+10);
 
-function derivedValue(k){
-  const t=total;
+function derivedRaw(t, k){
   switch(k){
     case "FUE": return t("AGI")+t("VEL")+num(state.eva_base);                 // EVA
     case "VIT": return t("VOL")+t("INT")+num(state.evam_base);               // EVA M.
@@ -1241,6 +1280,7 @@ function derivedValue(k){
     case "VOL": return t("INT")*4+100;                                       // PUN M.
   }
 }
+function derivedValue(k){ return derivedRaw(total, k); }
 const fmt = n => Math.floor(num(n));
 
 /* ---- Coste de MP y fórmulas (4 × ATR) en las tablas de clase ---- */
@@ -1432,6 +1472,10 @@ function ensureFree(){
   if(typeof state.turbo.text!=="string") state.turbo.text="";
   if(state.turbo.carga==null) state.turbo.carga=0;
   if(state.turbo.cargaMax==null) state.turbo.cargaMax=0;
+  if(typeof state.turbo.active!=="boolean") state.turbo.active=false;
+  if(typeof state.turbo.breakHP!=="boolean") state.turbo.breakHP=false;
+  if(typeof state.turbo.breakMP!=="boolean") state.turbo.breakMP=false;
+  if(!state.turbo.bonus || typeof state.turbo.bonus!=="object") state.turbo.bonus={};
   if(!Array.isArray(state.turbo.rows)) state.turbo.rows=[];
   while(state.turbo.rows.length<TURBO_ROWS) state.turbo.rows.push(freeRow());
   if(!state.offclass || typeof state.offclass!=="object") state.offclass={rows:[]};
@@ -1465,6 +1509,7 @@ function renderFree(){
   const cm=document.getElementById("turboCargaMax"); if(cm) cm.value=state.turbo.cargaMax;
   renderFreeTable("turbo", state.turbo.rows, "turboBody");
   renderFreeTable("off", state.offclass.rows, "offBody");
+  renderTurboBonus();
   updateTurboGlow();
   updateFormulas();
 }
@@ -1487,6 +1532,40 @@ function clampCarga(v){
   const max=num(state.turbo.cargaMax);
   if(max>0 && c>max) c=max;
   return c;
+}
+
+/* Valores de la sección de Turbo: total final de Personaje + bonus (siempre, esté o no activo el turbo) */
+function turboStats(){
+  const hpMult=34+(hasTalent("endurecido")?6:0), mpMult=4+(hasTalent("almapura")?2:0);
+  const dvb=k=>num(state.dvBonus&&state.dvBonus[k]);
+  const tt=turboTotalAttr;
+  const bHP = !!state.breakHP || !!(state.turbo && state.turbo.breakHP);
+  const bMP = !!state.breakMP || !!(state.turbo && state.turbo.breakMP);
+  let HP=Math.floor(tt("VIT")*hpMult)+tbonus("HP"); HP=bHP?HP:Math.min(HP,999);
+  let MP=Math.floor(tt("INT")*mpMult)+tbonus("MP"); MP=bMP?MP:Math.min(MP,99);
+  const dv=(attr,stat)=>Math.floor(derivedRaw(tt,attr)+dvb(attr))+tbonus(stat);
+  return {
+    HP, MP,
+    FUE:tt("FUE"), VIT:tt("VIT"), VOL:tt("VOL"), INT:tt("INT"), AGI:tt("AGI"), VEL:tt("VEL"),
+    EVA:dv("FUE","EVA"), EVAM:dv("VIT","EVAM"), ARM:dv("AGI","ARM"), ARMM:dv("VEL","ARMM"),
+    PUN:dv("INT","PUN"), PUNM:dv("VOL","PUNM")
+  };
+}
+function renderTurboBonus(){
+  const box=document.getElementById("turboBonus"); if(!box) return;
+  ensureFree();
+  const st=turboStats();
+  box.innerHTML = TURBO_STATS.map(s=>
+    `<div class="tb-row">`+
+      `<span class="tb-name">${s.label}</span>`+
+      `<input class="num tb-in" type="number" data-turbobonus="${s.k}" value="${Math.floor(tbonus(s.k))}" aria-label="Bonus de Turbo ${s.label}">`+
+      `<span class="tb-tot" data-tbstat="${s.k}" title="Total final de Personaje + bonus">${st[s.k]}</span>`+
+    `</div>`).join("");
+}
+function refreshTurboTotals(){
+  const box=document.getElementById("turboBonus"); if(!box) return;
+  const st=turboStats();
+  box.querySelectorAll(".tb-tot[data-tbstat]").forEach(el=>{ el.textContent=st[el.dataset.tbstat]; });
 }
 
 /* ---------- Talentos ---------- */
@@ -1748,9 +1827,12 @@ function updateWeaponDamage(){
   });
 }
 
-/* máximos de HP/MP (con talentos y límites 999/99 salvo "Romper límite") */
-function maxHP(){ const m=Math.floor(total("VIT")*(36+(hasTalent("endurecido")?4:0))); return state.breakHP?m:Math.min(m,999); }
-function maxMP(){ const m=Math.floor(total("INT")*(4 +(hasTalent("almapura") ?2:0))); return state.breakMP?m:Math.min(m,99); }
+/* máximos de HP/MP (con talentos y límites 999/99 salvo "Romper límite").
+   Límite efectivo: el de Personaje tiene preferencia; el de Turbo solo cuenta con el Turbo activo. */
+function effBreakHP(){ return !!state.breakHP || (turboOn() && !!(state.turbo && state.turbo.breakHP)); }
+function effBreakMP(){ return !!state.breakMP || (turboOn() && !!(state.turbo && state.turbo.breakMP)); }
+function maxHP(){ let m=Math.floor(total("VIT")*(34+(hasTalent("endurecido")?6:0))); if(turboOn()) m+=tbonus("HP"); return effBreakHP()?m:Math.min(m,999); }
+function maxMP(){ let m=Math.floor(total("INT")*(4 +(hasTalent("almapura") ?2:0))); if(turboOn()) m+=tbonus("MP"); return effBreakMP()?m:Math.min(m,99); }
 
 /* recalcula y pinta todos los valores derivados / vitales */
 function recompute(){
@@ -1764,7 +1846,7 @@ function recompute(){
     set("tot-"+a.k, t);
     set("rng-"+a.k, r);
     set("def-"+a.k, fmt(r/2));
-    set("dv-"+a.k, fmt(derivedValue(a.k) + num(state.dvBonus && state.dvBonus[a.k])));
+    set("dv-"+a.k, fmt(derivedValue(a.k) + num(state.dvBonus && state.dvBonus[a.k]) + (turboOn()?tbonus(DERIVED_STAT[a.k]):0)));
     const ee=document.getElementById("esf-"+a.k);
     if(ee){ ee.textContent = SB[a.k] ? ` +${SB[a.k]}` : ""; ee.title = SB[a.k] ? `+${SB[a.k]} por nodos activados del tablero` : ""; }
   });
@@ -1778,7 +1860,7 @@ function recompute(){
   // limita el HP/MP actual al máximo (cuando existe un máximo > 0)
   if(hpMax>0 && num(state.hp_cur)>hpMax){ state.hp_cur=hpMax; const f=document.querySelector('[data-vital="hp_cur"]'); if(f) f.value=hpMax; }
   if(mpMax>0 && num(state.mp_cur)>mpMax){ state.mp_cur=mpMax; const f=document.querySelector('[data-vital="mp_cur"]'); if(f) f.value=mpMax; }
-  const hpF=document.getElementById("hpFormula"); if(hpF) hpF.textContent = hasTalent("endurecido") ? "VIT × (36+4)" : "VIT × 36";
+  const hpF=document.getElementById("hpFormula"); if(hpF) hpF.textContent = hasTalent("endurecido") ? "VIT × (34+6)" : "VIT × 34";
   const mpF=document.getElementById("mpFormula"); if(mpF) mpF.textContent = hasTalent("almapura") ? "INT × (4+2)" : "INT × 4";
   document.getElementById("hpMax").textContent=hpMax;
   document.getElementById("mpMax").textContent=mpMax;
@@ -1788,6 +1870,7 @@ function recompute(){
   document.getElementById("mpBar").style.width=(mpMax?Math.max(0,Math.min(100,mpc/mpMax*100)):0)+"%";
   updateFormulas();   // refresca los cálculos (4 × ATR) y el daño de Mago Azul al cambiar atributos
   refreshAuxCalc();   // mantiene el resultado de la calculadora auxiliar al día
+  refreshTurboTotals();   // mantiene al día los totales de la sección de Turbo
 }
 
 /* refleja state en los inputs simples al cargar */
@@ -1795,6 +1878,7 @@ function hydrateSimple(){
   document.querySelectorAll("[data-id]").forEach(el=>{ el.value=(el.type==="number")?Math.floor(num(state[el.dataset.id])):(state[el.dataset.id]??""); });
   document.querySelectorAll("[data-vital]").forEach(el=>el.value=Math.floor(num(state[el.dataset.vital])));
   document.querySelectorAll("[data-break]").forEach(el=>el.checked=!!state[el.dataset.break==="mp"?"breakMP":"breakHP"]);
+  document.querySelectorAll("[data-turbobreak]").forEach(el=>el.checked=!!(state.turbo && state.turbo[el.dataset.turbobreak==="mp"?"breakMP":"breakHP"]));
   const nb=document.getElementById("notesBox"); if(nb) nb.value=state.notes||"";
 }
 
@@ -1868,6 +1952,7 @@ document.addEventListener("input", e=>{
     refreshSkillXP();
     recompute();
   }
+  else if(t.dataset.turbobonus!==undefined){ ensureFree(); state.turbo.bonus[t.dataset.turbobonus]=Math.floor(num(t.value)); recompute(); }
   else return;
   saveState(true);
 });
@@ -1875,6 +1960,7 @@ document.addEventListener("change", e=>{
   const t=e.target;
   if(t.dataset.black!==undefined){ state.black[t.dataset.black]=t.checked; saveState(true); }
   else if(t.dataset.break!==undefined){ state[t.dataset.break==="mp"?"breakMP":"breakHP"]=t.checked; recompute(); saveState(true); }
+  else if(t.dataset.turbobreak!==undefined){ ensureFree(); state.turbo[t.dataset.turbobreak==="mp"?"breakMP":"breakHP"]=t.checked; recompute(); saveState(true); }
   else if(t.dataset.blueOn!==undefined){ ensureBlue(); state.blue[t.dataset.blueOn].on=t.checked; saveState(true); }
   else if(t.dataset.blueAttr!==undefined){ ensureBlue(); state.blue[t.dataset.blueAttr].attr=t.value; updateFormulas(); saveState(true); }
   else if(t.dataset.abilOn!==undefined){ const p=t.dataset.abilOn.split("|"); state.abil[p[0]][+p[1]].on=t.checked; saveState(true); }
@@ -2363,19 +2449,46 @@ function auxRecover(key,label){
   refreshAuxCalc();
 })();
 
-/* Botón «Usar» de Turbo: solo disponible al alcanzar la carga máxima; reinicia la carga a 0. */
-function useTurbo(){
+/* Botón Activar/Desactivar Turbo.
+   Activar: requiere carga máxima; enciende el modo turbo (sin consumir todavía).
+   Desactivar: apaga el modo, consume toda la carga y vuelve a los valores normales. */
+function applyTurboVisual(){
   ensureFree();
-  const cur=num(state.turbo.carga), max=num(state.turbo.cargaMax);
-  if(!(max>0)){ flashNote("Define primero la carga máxima"); return; }
-  if(cur<max){ flashNote(`Turbo sin cargar (${cur}/${max})`); return; }
-  state.turbo.carga=0;
-  const cc=document.getElementById("turboCargaCur"); if(cc) cc.value=0;
-  updateTurboGlow(); saveState(true);
-  flashNote("¡Turbo usado! Carga reiniciada a 0");
+  const on=turboOn();
+  document.body.classList.toggle("turbo-active", on);
+  const b=document.getElementById("turboUseBtn");
+  if(b){
+    b.textContent = on ? "Desactivar" : "Activar";
+    b.classList.toggle("on", on);
+    b.title = on ? "Desactiva el Turbo y consume toda la carga." : "Activa el Turbo (requiere carga máxima). Vuelve a pulsar para desactivar y consumir la carga.";
+  }
+}
+function syncVitalInputs(){
+  ["hp_cur","mp_cur"].forEach(k=>{ const f=document.querySelector(`[data-vital="${k}"]`); if(f) f.value=Math.floor(num(state[k])); });
+}
+function toggleTurbo(){
+  ensureFree();
+  if(turboOn()){
+    // Desactivar: NO se resta el HP/MP ganado; baja el máximo y recompute lo ajusta al tope.
+    state.turbo.active=false;
+    state.turbo.carga=0;
+    const cc=document.getElementById("turboCargaCur"); if(cc) cc.value=0;
+    applyTurboVisual(); recompute(); syncVitalInputs(); updateTurboGlow(); saveState(true);
+    flashNote("Turbo desactivado · carga consumida");
+  } else {
+    const cur=num(state.turbo.carga), max=num(state.turbo.cargaMax);
+    if(!(max>0)){ flashNote("Define primero la carga máxima"); return; }
+    if(cur<max){ flashNote(`Turbo sin cargar (${cur}/${max})`); return; }
+    state.turbo.active=true;
+    // El HP/MP de Turbo se suma al actual al activar (luego se ajusta al nuevo máximo).
+    state.hp_cur = Math.max(0, num(state.hp_cur) + tbonus("HP"));
+    state.mp_cur = Math.max(0, num(state.mp_cur) + tbonus("MP"));
+    applyTurboVisual(); recompute(); syncVitalInputs(); updateTurboGlow(); saveState(true);
+    flashNote("¡Turbo activado!");
+  }
 }
 const turboUseBtn=document.getElementById("turboUseBtn");
-if(turboUseBtn) turboUseBtn.addEventListener("click", useTurbo);
+if(turboUseBtn) turboUseBtn.addEventListener("click", toggleTurbo);
 
 /* ---------- Botón «Usar»: resta el coste de MP de la fila al MP actual ----------
    Lee el MP de la propia fila: input editable (Mago Azul, Turbo, Offclass) o
@@ -2408,6 +2521,7 @@ function renderAll(){
   ensureAbil();
   renderAttrs(); renderSkills(); renderFreeSkills(); renderBlack(); renderBlue(); renderWhite(); renderTec(); renderEquip(); renderSpheres(); renderBoard(); renderFree(); renderTalents();
   recompute();
+  applyTurboVisual();   // refleja el modo Turbo persistido (fondo + botón)
 }
 renderAll();
 </script>
