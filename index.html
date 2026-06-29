@@ -743,8 +743,7 @@
 <!-- ============ TOOLBAR ============ -->
 <div class="toolbar">
   <button class="btn primary" id="saveBtn">Guardar</button>
-  <button class="btn" id="exportBtn">Exportar</button>
-  <button class="btn" id="importBtn">Importar</button>
+  <button class="btn" id="importBtn">Cargar</button>
   <button class="btn danger" id="resetBtn">Nueva ficha</button>
   <span class="saved-note" id="savedNote"></span>
 </div>
@@ -1355,7 +1354,7 @@ function renderAttrs(){
 function renderFormulas(){
   const box=document.getElementById("attrFormulas"); if(!box) return;
   const items=[
-    ["Total","Base + Bonus"],
+    ["Total","Base + Bonus + Bonus Esferas"],
     ["Rango","Total × 3 + 10 (máx. 100)"],
     ["Default","Rango ÷ 2"],
   ];
@@ -1996,18 +1995,19 @@ document.querySelectorAll('nav.tabs button').forEach(btn=>{
 });
 
 /* toolbar */
-document.getElementById("saveBtn").addEventListener("click",()=>saveState(false));
-document.getElementById("resetBtn").addEventListener("click",()=>{
-  if(confirm("¿Empezar una ficha nueva? Se borrarán los datos guardados.")){
-    state=blankState(); saveState(true); renderAll(); flashNote("Ficha nueva");
-  }
-});
-document.getElementById("exportBtn").addEventListener("click",()=>{
+document.getElementById("saveBtn").addEventListener("click",()=>{
+  saveState(true);                                  // persiste en el navegador
   const name=(state.nombre||"personaje").replace(/[^\w\-]+/g,"_");
   const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
   const a=document.createElement("a");
   a.href=URL.createObjectURL(blob); a.download="ficha_"+name+".json"; a.click();
-  URL.revokeObjectURL(a.href); flashNote("Exportado ✓");
+  URL.revokeObjectURL(a.href);
+  flashNote("Guardado y exportado ✓");
+});
+document.getElementById("resetBtn").addEventListener("click",()=>{
+  if(confirm("¿Empezar una ficha nueva? Se borrarán los datos guardados.")){
+    state=blankState(); saveState(true); renderAll(); flashNote("Ficha nueva");
+  }
 });
 document.getElementById("importBtn").addEventListener("click",()=>document.getElementById("fileInput").click());
 document.getElementById("fileInput").addEventListener("change",e=>{
