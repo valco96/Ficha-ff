@@ -373,6 +373,10 @@
   .attr-tbl td.c input{min-width:92px}
   .equip-tbl{min-width:820px}
   .equip-tbl input[type=text]{min-width:160px}
+  /* Nombre y Tipo a la mitad de ancho; el espacio sobrante pasa a Efectos */
+  .equip-tbl input[data-equip$="|nombre"],
+  .equip-tbl input[data-equip$="|tipo"]{min-width:80px}
+  .equip-tbl input[data-equip$="|ef"]{min-width:320px}
   .equip-tbl input.num{min-width:78px}
   .equip-tbl select{min-width:72px}
 
@@ -438,11 +442,12 @@
     <button role="tab" aria-selected="false" data-tab="equipo">Equipo</button>
     <button role="tab" aria-selected="false" data-tab="habilidades">Habilidades</button>
     <button role="tab" aria-selected="false" data-tab="talentos">Talentos</button>
-    <button role="tab" aria-selected="false" data-tab="clases">Clases</button>
     <button role="tab" aria-selected="false" data-tab="turbo">Turbo</button>
+    <button role="tab" aria-selected="false" data-tab="clases">Clases</button>
     <button role="tab" aria-selected="false" data-tab="offclass">Offclass</button>
     <button role="tab" aria-selected="false" data-tab="esferas">Esferas</button>
     <button role="tab" aria-selected="false" data-tab="tablero">Tablero</button>
+    <button role="tab" aria-selected="false" data-tab="glosario">Glosario</button>
   </nav>
 
   <!-- ============ PERSONAJE ============ -->
@@ -510,7 +515,7 @@
 
     <div class="win pad" style="margin-top:16px">
       <h2 class="section-title">Notas</h2>
-      <textarea id="notesBox" class="inv-box" placeholder="Texto libre: trasfondo, recordatorios, objetos clave, lo que quieras anotar…"></textarea>
+      <textarea id="notesBox" class="inv-box" style="min-height:380px" placeholder="Texto libre: trasfondo, recordatorios, objetos clave, lo que quieras anotar…"></textarea>
     </div>
   </section>
 
@@ -544,7 +549,7 @@
       </div>
 
       <h2 class="section-title" style="margin-top:26px">Inventario</h2>
-      <textarea id="invBox" class="inv-box" placeholder="Objetos, consumibles, gilles, materiales, llaves… escribe libremente aquí."></textarea>
+      <textarea id="invBox" class="inv-box" style="min-height:380px" placeholder="Objetos, consumibles, gilles, materiales, llaves… escribe libremente aquí."></textarea>
       <p class="hint">Todo el equipo y el inventario se guardan automáticamente en la ficha.</p>
 
       <h2 class="section-title" style="margin-top:26px">Calculadora auxiliar</h2>
@@ -634,7 +639,7 @@
         <button type="button" id="turboUseBtn" class="turbo-use" title="Activa el Turbo (requiere carga máxima). Vuelve a pulsar para desactivar y consumir la carga.">Activar</button>
       </div>
       <div class="vcalc"><span class="vcalc-lbl">± Carga</span><input class="num" type="number" inputmode="numeric" id="cargaCalc" placeholder="±0"><button type="button" id="cargaCalcBtn">Confirmar</button></div>
-      <textarea id="turboBox" class="inv-box" placeholder="Notas libres de Turbo… escribe lo que quieras aquí."></textarea>
+      <textarea id="turboBox" class="inv-box" style="min-height:380px" placeholder="Notas libres de Turbo… escribe lo que quieras aquí."></textarea>
 
       <h2 class="section-title" style="margin-top:22px">Atributos y derivados · bonus de Turbo</h2>
       <p class="hint" style="margin-top:-2px">Indica el bonus que el Turbo aporta a cada valor. El <b>total = total final de Personaje + bonus</b> (incluye «Romper límite» en HP/MP). Con el Turbo activado, estos valores se usan en todos los cálculos.</p>
@@ -735,6 +740,13 @@
       </div>
       <div class="board-armed" id="boardArmed" style="display:none"></div>
       <p class="hint">Es un único tablero conectado: cada clase es una fila y los nodos de bloqueo (grises, con su nivel) tienden puentes entre filas. El anillo resalta tu posición actual. Tócala para activar el nodo (gasta la esfera de su tipo del inventario). Para avanzar, toca un nodo unido a tu progreso: cada movimiento a un nodo sin activar cuesta 1 UD (y lo activa al instante si tienes su esfera); moverte sobre nodos ya activados cuesta 1 UD por cada 4. Solo puedes moverte si tu posición actual está activada. Los nodos activados no pueden desactivarse, y una vez activado el nodo inicial la clase queda fijada.<br>Esferas: pulsa un botón de esfera y luego elige el nodo de destino; se pedirá confirmación y se gastará 1 esfera. <b>Warp</b> te mueve a cualquier nodo sin gastar UD; <b>Retorno</b> a cualquier nodo ya activado; <b>Amiga</b> a un nodo activado por un aliado; <b>Maestra</b> activa cualquier nodo sin moverte ni gastar UD. La <b>Esfera Supresora</b> cambia el tipo de tu nodo actual (debe estar activado y no ser de habilidad/técnica/magia): pulsa el botón, elige la esfera de atributo a gastar (Fuerza, Vitalidad, Intelecto, Voluntad, Agilidad o Velocidad) y confirma; se consumen 1 Esfera Supresora + 1 de atributo, y el nodo queda con el nuevo tipo y desactivado (actívalo luego con su esfera de Vigor/Rapidez/Magia).</p>
+    </div>
+  </section>
+
+  <!-- ============ GLOSARIO ============ -->
+  <section class="panel" id="glosario">
+    <div class="win pad">
+      <h2 class="section-title">Glosario</h2>
     </div>
   </section>
 
